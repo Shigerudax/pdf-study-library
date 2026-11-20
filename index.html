@@ -1,129 +1,152 @@
 <!DOCTYPE html>
-
 <html lang="ja">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>大学入試 PDF教材ライブラリ</title>
-
 <style>
-
+:root{color-scheme:dark}
 *{box-sizing:border-box}
-
-body{margin:0;background:#101827;color:#e9eef7;
-
-font-family:system-ui,sans-serif}
-
+body{margin:0;background:#101827;color:#e9eef7;font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
 header{padding:35px 6%;background:#192439}
-
-h1{margin:0 0 10px}
-
-header p{color:#a9b9d0}
-
+header h1{margin:0 0 10px;font-size:clamp(1.35rem,4vw,2rem)}
+header p{color:#a9b9d0;margin:0}
 main{max-width:1100px;margin:auto;padding:30px 20px}
-
 nav{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:25px}
-
-button{background:#28364d;color:white;border:1px solid #465571;
-
-border-radius:9px;padding:12px 20px;cursor:pointer}
-
-button.active,button:hover{background:#4168a5}
-
-input{width:100%;padding:14px;margin-bottom:25px;
-
-background:#1c293d;border:1px solid #485771;
-
-border-radius:9px;color:white;font-size:16px}
-
-#materials{display:grid;grid-template-columns:
-
-repeat(auto-fit,minmax(250px,1fr));gap:16px}
-
-article{background:#1d2a3d;padding:22px;border-radius:12px}
-
-article h2{font-size:18px;margin-top:0}
-
-article p{color:#aebdd0}
-
-a{color:#a9ccff}
-
-nav a{padding:8px 14px;background:#1d2a3d;border-radius:8px}summary{cursor:pointer;padding:9px 0}details+details{border-top:1px solid #354156}article:target{outline:2px solid #a9ccff}article p{margin:4px 0 12px}
+nav a{padding:9px 14px;background:#1d2a3d;border-radius:8px;text-decoration:none;font-weight:600}
+nav a:hover,nav a:focus-visible{background:#2e4059}
+input{width:100%;padding:14px;margin-bottom:16px;background:#1c293d;border:1px solid #485771;border-radius:9px;color:white;font-size:16px}
+#status{color:#a9b9d0;margin:0 0 20px;min-height:1.5em}
+#materials{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:16px}
+article{background:#1d2a3d;padding:22px;border-radius:12px;min-width:0}
+article h2{font-size:18px;margin:0 0 12px}
+article h2 .count{font-size:13px;font-weight:400;color:#aebdd0;margin-left:8px}
+article:target{outline:2px solid #a9ccff}
+details+details{border-top:1px solid #354156}
+summary{cursor:pointer;padding:12px 0;font-weight:550}
+.category-count{font-size:12px;color:#aebdd0;margin-left:8px}
+ul{padding:0;list-style:none;margin:0 0 14px}
+li+li{border-top:1px solid #354156}
+li a{display:block;padding:11px 2px;color:#a9ccff;text-decoration:none;overflow-wrap:anywhere}
+li a:hover,li a:focus-visible{text-decoration:underline}
+.missing{color:#aebdd0;margin:4px 0 14px;font-size:14px}
+#empty{color:#aebdd0}
+a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #a9ccff;outline-offset:3px}
 </style>
-
 </head>
-
 <body>
-
-<header>
-
-<h1>大学入試 PDF教材ライブラリ</h1>
-
-<p>共通テスト・難関大学入試対策</p>
-
-</header>
-
+<header><h1>大学入試 PDF教材ライブラリ</h1><p>共通テスト・難関大学入試対策</p></header>
 <main>
-
-<nav aria-label="科目"><a href="#subject-英語" style="color:#81b4ff">英語</a>
+<nav aria-label="科目">
+<a href="#subject-英語" style="color:#81b4ff">英語</a>
 <a href="#subject-数学" style="color:#ffae66">数学</a>
 <a href="#subject-国語" style="color:#ff9292">国語</a>
 <a href="#subject-理科" style="color:#79d8a1">理科</a>
 <a href="#subject-社会" style="color:#ecd775">社会</a>
-<a href="#subject-情報" style="color:#c6a3ff">情報</a></nav>
-
-<input type="search" id="search" aria-label="教材を検索" placeholder="教材を検索">
-
-<section id="materials"><article id="subject-英語" style="border-top:4px solid #81b4ff"><h2>英語</h2><details><summary>共通テスト用</summary><p>教材はまだありません</p></details>
-<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
-<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article>
-<article id="subject-数学" style="border-top:4px solid #ffae66"><h2>数学</h2><details><summary>共通テスト用</summary><p>教材はまだありません</p></details>
-<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
-<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article>
-<article id="subject-国語" style="border-top:4px solid #ff9292"><h2>国語</h2><details><summary>共通テスト用</summary><p>教材はまだありません</p></details>
-<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
-<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article>
-<article id="subject-理科" style="border-top:4px solid #79d8a1"><h2>理科</h2><details><summary>共通テスト用</summary><p><a href="理科/共通テスト用/kyotsu_test_chemistry_basics(2).pdf">共通テスト 化学基礎（PDF）</a></p></details>
-<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
-<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article>
-<article id="subject-社会" style="border-top:4px solid #ecd775"><h2>社会</h2><details><summary>共通テスト用</summary><p>教材はまだありません</p></details>
-<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
-<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article>
-<article id="subject-情報" style="border-top:4px solid #c6a3ff"><h2>情報</h2><details><summary>共通テスト用</summary><p>教材はまだありません</p></details>
-<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
-<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article></section>
+<a href="#subject-情報" style="color:#c6a3ff">情報</a>
+</nav>
+<input type="search" id="search" aria-label="教材を検索" placeholder="教材名・単元・科目を検索">
+<p id="status" role="status" aria-live="polite">教材一覧を読み込み中…</p>
+<section id="materials" aria-label="教材一覧"></section>
 <p id="empty" hidden>一致する教材はありません。</p>
 </main>
 <script>
-const search = document.getElementById('search');
-const subjects = document.querySelectorAll('#materials article');
-search.addEventListener('input', () => {
-  const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  let matches = 0;
-  for (const subject of subjects) {
-    const name = subject.querySelector('h2').textContent;
-    let visible = false;
-    for (const folder of subject.querySelectorAll('details')) {
-      const label = name + folder.querySelector('summary').textContent + (folder.querySelector('a')?.textContent || '');
-      folder.hidden = !terms.every(term => label.toLowerCase().includes(term));
-      folder.open = terms.length > 0 && !folder.hidden;
-      if (!folder.hidden) visible = true;
+"use strict";
+const SUBJECTS = [
+  {name:"英語",color:"#81b4ff"},
+  {name:"数学",color:"#ffae66"},
+  {name:"国語",color:"#ff9292"},
+  {name:"理科",color:"#79d8a1"},
+  {name:"社会",color:"#ecd775"},
+  {name:"情報",color:"#c6a3ff"}
+];
+const CATEGORIES = ["共通テスト用","二次試験用","基礎確認事項"];
+const search = document.getElementById("search");
+const container = document.getElementById("materials");
+const statusText = document.getElementById("status");
+const empty = document.getElementById("empty");
+let allMaterials = [];
+function valid(item){
+  return item && typeof item.title==="string" && typeof item.file==="string" &&
+    SUBJECTS.some(s=>s.name===item.subject) && CATEGORIES.includes(item.category) &&
+    !item.file.startsWith("/") && !item.file.includes("..") &&
+    item.file.startsWith(item.subject+"/"+item.category+"/") && /\.pdf$/i.test(item.file);
+}
+function render(){
+  const terms=search.value.trim().toLocaleLowerCase("ja").split(/\s+/).filter(Boolean);
+  const data=allMaterials.filter(item=>terms.every(t=>
+    (item.title+" "+item.subject+" "+item.category+" "+item.file).toLocaleLowerCase("ja").includes(t)));
+  container.replaceChildren();
+  let visible=0;
+  for(const subject of SUBJECTS){
+    const own=data.filter(item=>item.subject===subject.name);
+    if(terms.length && !own.length) continue;
+    visible++;
+    const article=document.createElement("article");
+    article.id="subject-"+subject.name;
+    article.style.borderTop="4px solid "+subject.color;
+    const h2=document.createElement("h2");
+    h2.textContent=subject.name;
+    const count=document.createElement("span");
+    count.className="count";
+    count.textContent=own.length+" 件";
+    h2.append(count);
+    article.append(h2);
+    for(const category of CATEGORIES){
+      const items=own.filter(item=>item.category===category);
+      if(terms.length && !items.length) continue;
+      const detail=document.createElement("details");
+      detail.open=terms.length>0;
+      const summary=document.createElement("summary");
+      summary.append(document.createTextNode(category));
+      const n=document.createElement("span");
+      n.className="category-count";
+      n.textContent="("+items.length+")";
+      summary.append(n);
+      detail.append(summary);
+      if(items.length){
+        const list=document.createElement("ul");
+        for(const item of items){
+          const li=document.createElement("li");
+          const a=document.createElement("a");
+          a.href=item.file.split("/").map(encodeURIComponent).join("/");
+          a.textContent=item.title;
+          a.target="_blank";
+          a.rel="noopener noreferrer";
+          li.append(a);list.append(li);
+        }
+        detail.append(list);
+      }else{
+        const p=document.createElement("p");
+        p.className="missing";
+        p.textContent="教材はまだありません";
+        detail.append(p);
+      }
+      article.append(detail);
     }
-    subject.hidden = !visible;
-    if (visible) matches++;
+    container.append(article);
   }
-  document.getElementById('empty').hidden = matches > 0;
-});
-document.querySelector('nav').addEventListener('click', () => {
-  if (search.value) {
-    search.value = '';
-    search.dispatchEvent(new Event('input'));
+  empty.hidden=visible!==0;
+  statusText.textContent=allMaterials.length+" 件のPDF教材を登録中"+(terms.length?" · 検索結果 "+data.length+" 件":"");
+}
+async function init(){
+  try{
+    const response=await fetch("./materials.json",{cache:"no-cache"});
+    if(!response.ok) throw new Error("HTTP "+response.status);
+    const result=await response.json();
+    if(!Array.isArray(result)) throw new Error("教材データの形式が不正です");
+    allMaterials=result.filter(valid).sort((a,b)=>a.title.localeCompare(b.title,"ja"));
+    render();
+  }catch(error){
+    statusText.textContent="教材一覧を読み込めませんでした。再読み込みしてください。";
+    console.error("教材一覧の取得に失敗:",error);
   }
+}
+search.addEventListener("input",render);
+document.querySelector("nav").addEventListener("click",()=>{
+  if(search.value){search.value="";render();}
 });
+init();
 </script>
 </body>
 </html>
