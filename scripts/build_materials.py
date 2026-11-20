@@ -9,11 +9,26 @@ SUBJECTS = ("英語", "数学", "国語", "理科", "社会", "情報")
 CATEGORIES = ("共通テスト用", "二次試験用", "基礎確認事項")
 OUTPUT = ROOT / "materials.json"
 
+# 表示用タイトル。PDFファイル名・URLは変更しない。
+TITLE_OVERRIDES = {
+    "kobun_words_400_vertical": "古文重要単語400語一覧",
+    "kyotsu_test_chemistry_basics": "共通テスト化学基礎｜重要ポイントと出題対策",
+    "共通テスト物理_出題分析と要点": "共通テスト物理｜出題分析と重要ポイント",
+    "metal_ions_precipitation_charge_readable": "金属イオン｜沈殿・電荷・反応一覧",
+    "world_geography_corrected_economies": "世界地誌｜各地域の産業・経済の特徴",
+    "kyotsu_info1_code_notation_guide": "共通テスト情報Ⅰ｜プログラムの表記と読み方",
+    "synthetic_polymers_materials_reactions_table": "合成高分子化合物｜原料・製法・反応一覧",
+    "amino_acids_20_structure_groups_features": "アミノ酸20種類｜構造式・分類・特徴",
+    "共通テスト政治経済_要点と暗記": "共通テスト政治・経済｜重要事項と暗記ポイント",
+}
+
 def title_from_filename(filename: str) -> str:
     stem = Path(filename).stem
-    stem = re.sub(r"\s*\(\d+\)$", "", stem)
+    stem = re.sub(r"\\s*\\(\\d+\\)$", "", stem)
+    if stem in TITLE_OVERRIDES:
+        return TITLE_OVERRIDES[stem]
     stem = stem.replace("_", " ").replace("-", " ")
-    return re.sub(r"\s+", " ", stem).strip()
+    return re.sub(r"\\s+", " ", stem).strip()
 
 def build():
     records = []
