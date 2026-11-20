@@ -52,6 +52,7 @@ article p{color:#aebdd0}
 
 a{color:#a9ccff}
 
+nav a{padding:8px 14px;background:#1d2a3d;border-radius:8px}summary{cursor:pointer;padding:9px 0}details+details{border-top:1px solid #354156}article:target{outline:2px solid #a9ccff}article p{margin:4px 0 12px}
 </style>
 
 </head>
@@ -68,8 +69,61 @@ a{color:#a9ccff}
 
 <main>
 
-<nav id="categories"></nav>
+<nav aria-label="科目"><a href="#subject-英語" style="color:#81b4ff">英語</a>
+<a href="#subject-数学" style="color:#ffae66">数学</a>
+<a href="#subject-国語" style="color:#ff9292">国語</a>
+<a href="#subject-理科" style="color:#79d8a1">理科</a>
+<a href="#subject-社会" style="color:#ecd775">社会</a>
+<a href="#subject-情報" style="color:#c6a3ff">情報</a></nav>
 
-<input id="search" placeholder="教材を検索">
+<input type="search" id="search" aria-label="教材を検索" placeholder="教材を検索">
 
-<section id="materials"></section>
+<section id="materials"><article id="subject-英語" style="border-top:4px solid #81b4ff"><h2>英語</h2><details><summary>共通テスト用</summary><p>教材はまだありません</p></details>
+<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
+<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article>
+<article id="subject-数学" style="border-top:4px solid #ffae66"><h2>数学</h2><details><summary>共通テスト用</summary><p>教材はまだありません</p></details>
+<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
+<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article>
+<article id="subject-国語" style="border-top:4px solid #ff9292"><h2>国語</h2><details><summary>共通テスト用</summary><p>教材はまだありません</p></details>
+<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
+<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article>
+<article id="subject-理科" style="border-top:4px solid #79d8a1"><h2>理科</h2><details><summary>共通テスト用</summary><p><a href="理科/共通テスト用/kyotsu_test_chemistry_basics(2).pdf">共通テスト 化学基礎（PDF）</a></p></details>
+<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
+<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article>
+<article id="subject-社会" style="border-top:4px solid #ecd775"><h2>社会</h2><details><summary>共通テスト用</summary><p>教材はまだありません</p></details>
+<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
+<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article>
+<article id="subject-情報" style="border-top:4px solid #c6a3ff"><h2>情報</h2><details><summary>共通テスト用</summary><p>教材はまだありません</p></details>
+<details><summary>二次試験用</summary><p>教材はまだありません</p></details>
+<details><summary>基礎確認事項</summary><p>教材はまだありません</p></details></article></section>
+<p id="empty" hidden>一致する教材はありません。</p>
+</main>
+<script>
+const search = document.getElementById('search');
+const subjects = document.querySelectorAll('#materials article');
+search.addEventListener('input', () => {
+  const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  let matches = 0;
+  for (const subject of subjects) {
+    const name = subject.querySelector('h2').textContent;
+    let visible = false;
+    for (const folder of subject.querySelectorAll('details')) {
+      const label = name + folder.querySelector('summary').textContent + (folder.querySelector('a')?.textContent || '');
+      folder.hidden = !terms.every(term => label.toLowerCase().includes(term));
+      folder.open = terms.length > 0 && !folder.hidden;
+      if (!folder.hidden) visible = true;
+    }
+    subject.hidden = !visible;
+    if (visible) matches++;
+  }
+  document.getElementById('empty').hidden = matches > 0;
+});
+document.querySelector('nav').addEventListener('click', () => {
+  if (search.value) {
+    search.value = '';
+    search.dispatchEvent(new Event('input'));
+  }
+});
+</script>
+</body>
+</html>
