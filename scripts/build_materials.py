@@ -24,11 +24,11 @@ TITLE_OVERRIDES = {
 
 def title_from_filename(filename: str) -> str:
     stem = Path(filename).stem
-    stem = re.sub(r"\\s*\\(\\d+\\)$", "", stem)
+    stem = re.sub(r"\s*\(\d+\)$", "", stem)
     if stem in TITLE_OVERRIDES:
         return TITLE_OVERRIDES[stem]
     stem = stem.replace("_", " ").replace("-", " ")
-    return re.sub(r"\\s+", " ", stem).strip()
+    return re.sub(r"\s+", " ", stem).strip()
 
 def build():
     records = []
