@@ -4,5 +4,35 @@
     "subject": "理科",
     "category": "共通テスト用",
     "file": "理科/共通テスト用/kyotsu_test_chemistry_basics(2).pdf"
+  },
+  {
+    "title": "古文単語400",
+    "subject": "国語",
+    "category": "共通テスト用",
+    "file": "国語/共通テスト用/kobun_words_400_vertical(1).pdf"
+  },
+  {
+    "title": "金属イオン｜色・沈殿・再溶解",
+    "subject": "理科",
+    "category": "基礎確認事項",
+    "file": "理科/基礎確認事項/metal_ions_precipitation_charge_readable(1).pdf"
+  },
+  {
+    "title": "物理｜出題分析と要点",
+    "subject": "理科",
+    "category": "共通テスト用",
+    "file": "理科/共通テスト用/共通テスト物理_出題分析と要点(1).pdf"
+  },
+  {
+    "title": "地図で学ぶ世界地誌",
+    "subject": "社会",
+    "category": "共通テスト用",
+    "file": "社会/共通テスト用/world_geography_corrected_economies(1).pdf"
+  },
+  {
+    "title": "情報Ⅰ｜プログラム表記の読み方",
+    "subject": "情報",
+    "category": "共通テスト用",
+    "file": "情報/共通テスト用/kyotsu_info1_code_notation_guide(1).pdf"
   }
 ]
