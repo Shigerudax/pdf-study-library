@@ -102,6 +102,12 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 .daily-feature .daily-intro{color:#d9d4f6;font-size:14px;margin:0 0 15px}
 .daily-feature ul,.daily-feature .missing{margin:0}
 @media(max-width:500px){.daily-feature{padding:17px}.daily-nav{width:100%;text-align:center}}
+.daily-topic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px;margin-top:14px}
+.daily-topic{min-width:0;background:rgba(12,25,45,.6);border:1px solid rgba(204,188,255,.42);border-radius:10px;padding:0 13px}
+.daily-topic>summary{font-size:17px;font-weight:750;color:#f3edff;padding:13px 0}
+.daily-topic .category-count{font-weight:500}
+.daily-topic ul{margin-bottom:12px}
+.daily-topic .missing{padding-bottom:13px;font-size:13px}
 </style>
 </head>
 <body>
@@ -399,6 +405,7 @@ function createMaterialList(items){
 const search = document.getElementById("search");
 const container = document.getElementById("materials");
 const dailyContainer=document.getElementById("daily-knowledge");
+const DAILY_TOPICS=["漢字","英単語","化学","社会","情報"];
 const statusText = document.getElementById("status");
 const empty = document.getElementById("empty");
 let allMaterials = [];
@@ -410,6 +417,17 @@ function valid(item){
 }
 function searchableText(item){
   return [item.title,item.subject,item.category,item.file,classifyTopic(item)||"",...(SUBJECT_ALIASES[item.subject]||[])].join(" ").normalize("NFKC").toLocaleLowerCase("ja");
+}
+function dailyTopic(item){
+  const part=item.file.split("/")[1];
+  if(DAILY_TOPICS.includes(part))return part;
+  const name=(item.title+" "+item.file).normalize("NFKC").toLowerCase();
+  if(/漢字|熟語|書き取り/.test(name))return "漢字";
+  if(/英単語|英語語彙|vocabulary/.test(name))return "英単語";
+  if(/化学|元素|電離|酸化還元/.test(name))return "化学";
+  if(/社会|地理|歴史|政治|経済|公民/.test(name))return "社会";
+  if(/情報|プログラミング|アルゴリズム/.test(name))return "情報";
+  return "その他・未分類";
 }
 function render(){
   const terms=search.value.trim().normalize("NFKC").toLocaleLowerCase("ja").split(/\s+/).filter(Boolean);
@@ -428,13 +446,36 @@ function render(){
     intro.className="daily-intro";
     intro.textContent="毎日の短時間学習・知識の確認に使う問題集";
     feature.append(intro);
-    if(dailyItems.length)feature.append(createMaterialList(dailyItems));
-    else{
-      const note=document.createElement("p");
-      note.className="missing";
-      note.textContent="教材はまだありません";
-      feature.append(note);
+    const dailyGrid=document.createElement("div");
+    dailyGrid.className="daily-topic-grid";
+    for(const topic of DAILY_TOPICS){
+      const topicItems=dailyItems.filter(item=>dailyTopic(item)===topic);
+      if(terms.length&&!topicItems.length)continue;
+      const group=document.createElement("details");
+      group.className="daily-topic";
+      group.open=terms.length>0;
+      const summary=document.createElement("summary");
+      summary.textContent=topic+" ("+topicItems.length+")";
+      group.append(summary);
+      if(topicItems.length)group.append(createMaterialList(topicItems));
+      else{
+        const note=document.createElement("p");
+        note.className="missing";
+        note.textContent="教材はまだありません";
+        group.append(note);
+      }
+      dailyGrid.append(group);
     }
+    const others=dailyItems.filter(item=>!DAILY_TOPICS.includes(dailyTopic(item)));
+    if(others.length){
+      const group=document.createElement("details");
+      group.className="daily-topic";
+      const summary=document.createElement("summary");
+      summary.textContent="その他・未分類 ("+others.length+")";
+      group.append(summary,createMaterialList(others));
+      dailyGrid.append(group);
+    }
+    feature.append(dailyGrid);
     dailyContainer.append(feature);
   }
   let visible=showDaily?1:0;
