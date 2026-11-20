@@ -28,6 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
+          fetch-depth: 0
       - name: PDF教材一覧を生成
         run: python3 scripts/build_materials.py
       - name: 更新があればコミット
