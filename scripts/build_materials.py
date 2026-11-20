@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """科目別フォルダー内のPDFからGitHub Pages用教材一覧を生成する。"""
+# GitHub Actionsによる教材一覧・アップロード日時の再生成を要求。
 import json
 import subprocess
 from datetime import datetime, timezone
