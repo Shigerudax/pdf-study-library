@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """科目別フォルダー内のPDFからGitHub Pages用教材一覧を生成する。"""
 import json
+import subprocess
+from datetime import datetime, timezone
 import re
 from pathlib import Path
 
@@ -30,6 +32,26 @@ def title_from_filename(filename: str) -> str:
     stem = stem.replace("_", " ").replace("-", " ")
     return re.sub(r"\s+", " ", stem).strip()
 
+def upload_datetime(path: Path) -> str | None:
+    """Git履歴で確認できる最初の追加コミット日時（UTC、ISO 8601）。"""
+    relative = path.relative_to(ROOT).as_posix()
+    command = ["git", "-C", str(ROOT), "log", "--follow", "--diff-filter=A",
+               "--format=%aI", "--", relative]
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    dates = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    if not dates:
+        result = subprocess.run(
+            ["git", "-C", str(ROOT), "log", "-1", "--format=%aI", "--", relative],
+            capture_output=True, text=True, check=False)
+        dates = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    if not dates:
+        return None
+    try:
+        return datetime.fromisoformat(dates[-1]).astimezone(timezone.utc).isoformat()
+    except ValueError:
+        return None
+
+
 def build():
     records = []
     for subject in SUBJECTS:
@@ -46,6 +68,7 @@ def build():
                     "subject": subject,
                     "category": category,
                     "file": relative,
+                    "uploaded_at": upload_datetime(path),
                 })
     return records
 
