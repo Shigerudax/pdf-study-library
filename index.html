@@ -31,6 +31,7 @@ li a{display:block;padding:11px 2px;color:#a9ccff;text-decoration:none;overflow-
 li a:hover,li a:focus-visible{text-decoration:underline}
 .subject-tag{display:inline-block;font-size:12px;font-weight:600;color:#e9eef7;background:#35445d;border-radius:5px;padding:2px 7px;margin:0 8px 4px 0}
 .pdf-title{vertical-align:middle}
+.upload-date{display:block;margin:5px 0 0;color:#aebdd0;font-size:12px;line-height:1.5}
 .missing{color:#aebdd0;margin:4px 0 14px;font-size:14px}
 #empty{color:#aebdd0}
 a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #a9ccff;outline-offset:3px}
@@ -366,6 +367,18 @@ function createMaterialList(items){
     title.className="pdf-title";
     title.textContent=item.title;
     a.append(tag,title);
+    if(item.uploaded_at){
+      const date=new Date(item.uploaded_at);
+      if(!Number.isNaN(date.getTime())){
+        const uploaded=document.createElement("span");
+        uploaded.className="upload-date";
+        uploaded.textContent="アップロード日時："+new Intl.DateTimeFormat("ja-JP",{
+          timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit",
+          hour:"2-digit",minute:"2-digit",hour12:false
+        }).format(date);
+        a.append(uploaded);
+      }
+    }
     a.setAttribute("aria-label",item.subject+" "+item.category+" "+item.title);
     a.target="_blank";
     a.rel="noopener noreferrer";
