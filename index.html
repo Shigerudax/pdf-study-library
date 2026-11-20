@@ -84,34 +84,49 @@ const examStart = Date.parse("2027-01-16T09:30:00+09:00");
 const day1Start = Date.parse("2027-01-16T00:00:00+09:00");
 const day2Start = Date.parse("2027-01-17T00:00:00+09:00");
 const examEnd = Date.parse("2027-01-18T00:00:00+09:00");
+const secondExamStart = Date.parse("2027-02-25T09:00:00+09:00");
 const countdownLabel = document.querySelector(".countdown-label");
 const countdownDate = document.getElementById("countdown-date");
 const countdownUnits = document.getElementById("countdown-units");
-function updateCountdown(){
-  const now=Date.now();
-  if(now>=day1Start){
-    countdownUnits.classList.add("exam-day-message");
-    countdownUnits.replaceChildren();
-    if(now<day2Start){
-      countdownLabel.textContent="2027年度 大学入学共通テスト 1日目";
-      countdownUnits.textContent="いよいよ本番です、頑張りましょう！";
-      countdownDate.textContent="1日目：2027年1月16日（土）";
-    }else if(now<examEnd){
-      countdownLabel.textContent="2027年度 大学入学共通テスト 2日目";
-      countdownUnits.textContent="いよいよ本番です、頑張りましょう！";
-      countdownDate.textContent="2日目：2027年1月17日（日）";
-    }else{
-      countdownLabel.textContent="2027年度 大学入学共通テスト";
-      countdownUnits.textContent="共通テストお疲れさまでした！";
-      countdownDate.textContent="本試験：2027年1月16日（土）・17日（日）";
-    }
-    return;
+const countdownTemplate = countdownUnits.innerHTML;
+function showCountdown(target){
+  if(!document.getElementById("days")){
+    countdownUnits.innerHTML=countdownTemplate;
+    countdownUnits.classList.remove("exam-day-message");
   }
-  const remaining=Math.ceil((examStart-now)/1000);
+  const remaining=Math.max(0,Math.ceil((target-Date.now())/1000));
   document.getElementById("days").textContent=Math.floor(remaining/86400);
   document.getElementById("hours").textContent=String(Math.floor(remaining%86400/3600)).padStart(2,"0");
   document.getElementById("minutes").textContent=String(Math.floor(remaining%3600/60)).padStart(2,"0");
   document.getElementById("seconds").textContent=String(remaining%60).padStart(2,"0");
+}
+function showMessage(message){
+  countdownUnits.classList.add("exam-day-message");
+  if(countdownUnits.textContent!==message)countdownUnits.textContent=message;
+}
+function updateCountdown(){
+  const now=Date.now();
+  if(now<day1Start){
+    countdownLabel.textContent="2027年度 大学入学共通テストまで";
+    countdownDate.textContent="本試験：2027年1月16日（土）・17日（日）";
+    showCountdown(examStart);
+  }else if(now<day2Start){
+    countdownLabel.textContent="2027年度 大学入学共通テスト 1日目";
+    countdownDate.textContent="1日目：2027年1月16日（土）";
+    showMessage("いよいよ本番です、頑張りましょう！");
+  }else if(now<examEnd){
+    countdownLabel.textContent="2027年度 大学入学共通テスト 2日目";
+    countdownDate.textContent="2日目：2027年1月17日（日）";
+    showMessage("いよいよ本番です、頑張りましょう！");
+  }else if(now<secondExamStart){
+    countdownLabel.textContent="2027年度 国公立大学二次試験（前期日程）まで";
+    countdownDate.textContent="前期日程：2027年2月25日（木）から（大学・学部により異なります）";
+    showCountdown(secondExamStart);
+  }else{
+    countdownLabel.textContent="2027年度 国公立大学二次試験（前期日程）";
+    countdownDate.textContent="前期日程：2027年2月25日（木）から（大学・学部により異なります）";
+    showMessage("二次試験本番です。これまでの成果を発揮しましょう！");
+  }
 }
 updateCountdown();
 setInterval(updateCountdown,1000);
