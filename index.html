@@ -61,6 +61,15 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 .weather-strip button:hover{background:#365273}
 .weather-strip button:focus-visible{outline:2px solid #a9ccff;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){body::before{transition:none}}
+
+/* 月別の控えめな季節装飾：カウントダウンだけに適用 */
+.countdown-panel{position:relative;overflow:hidden;isolation:isolate}
+.countdown-panel::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--month-glow,linear-gradient(120deg,rgba(112,156,206,.12),transparent));pointer-events:none}
+.countdown-panel::after{content:var(--month-motif,"✦  ✧  ✦");position:absolute;right:16px;top:10px;color:var(--month-accent,#c8dbf3);opacity:.36;font-size:clamp(20px,4vw,36px);letter-spacing:.25em;white-space:nowrap;pointer-events:none}
+.countdown-label{color:var(--month-accent,#b9cce6)}
+.countdown-panel{border-color:var(--month-border,rgba(204,224,249,.32))}
+.month-caption{font-size:12px;color:#d4e1f1;margin:9px 0 0;letter-spacing:.04em}
+@media(max-width:460px){.countdown-panel::after{font-size:19px;right:7px;top:6px;opacity:.25}}
 </style>
 </head>
 <body>
@@ -77,6 +86,7 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
       <span class="countdown-unit"><span id="seconds" class="countdown-number">--</span><span class="countdown-suffix">秒</span></span>
     </div>
     <p id="countdown-date" class="countdown-date">本試験：2027年1月16日（土）・17日（日）</p>
+    <p id="month-caption" class="month-caption" aria-live="off"></p>
   </div>
 </section>
 
@@ -162,6 +172,35 @@ loadWeather(35.6762,139.6503,"東京");
 setInterval(()=>{applyBackground();},60000);
 setInterval(()=>{if(weatherArea==="東京")loadWeather(35.6762,139.6503,"東京");},30*60*1000);
 
+
+
+/* 端末の月に応じた季節モチーフ。毎日更新して月替わりに追従 */
+const MONTH_THEMES=[
+  {name:"睦月",desc:"新年の澄んだ空",motif:"❄  ✦  ❄",accent:"#cce9ff",border:"rgba(173,219,250,.48)",glow:"linear-gradient(120deg,rgba(108,179,231,.24),transparent 72%)"},
+  {name:"如月",desc:"冬のきらめき",motif:"✧  ❄  ✧",accent:"#d9e3ff",border:"rgba(196,208,252,.46)",glow:"linear-gradient(120deg,rgba(136,151,222,.22),transparent 72%)"},
+  {name:"弥生",desc:"春の訪れ",motif:"✿  ❀  ✿",accent:"#ffd2e1",border:"rgba(255,180,208,.48)",glow:"linear-gradient(120deg,rgba(234,119,166,.22),transparent 72%)"},
+  {name:"卯月",desc:"桜の季節",motif:"❀  ✿  ❀",accent:"#ffd6e8",border:"rgba(255,190,216,.5)",glow:"linear-gradient(120deg,rgba(246,144,181,.24),transparent 72%)"},
+  {name:"皐月",desc:"新緑の季節",motif:"❧  ✦  ❧",accent:"#baf1d1",border:"rgba(149,232,181,.45)",glow:"linear-gradient(120deg,rgba(72,168,112,.23),transparent 72%)"},
+  {name:"水無月",desc:"雨と紫陽花",motif:"☂  ✧  ☂",accent:"#c4d8ff",border:"rgba(158,186,245,.47)",glow:"linear-gradient(120deg,rgba(95,123,210,.23),transparent 72%)"},
+  {name:"文月",desc:"夏の青空",motif:"☀  ✦  ☀",accent:"#ffe3a4",border:"rgba(248,210,130,.48)",glow:"linear-gradient(120deg,rgba(238,168,68,.24),transparent 72%)"},
+  {name:"葉月",desc:"盛夏の光",motif:"✺  ☀  ✺",accent:"#ffd49d",border:"rgba(250,181,109,.48)",glow:"linear-gradient(120deg,rgba(242,138,52,.25),transparent 72%)"},
+  {name:"長月",desc:"秋の始まり",motif:"☾  ✧  ☾",accent:"#f4d5ac",border:"rgba(230,185,131,.46)",glow:"linear-gradient(120deg,rgba(189,133,75,.22),transparent 72%)"},
+  {name:"神無月",desc:"深まる秋",motif:"❧  ✦  ❧",accent:"#ffd0a3",border:"rgba(242,160,104,.48)",glow:"linear-gradient(120deg,rgba(200,105,58,.24),transparent 72%)"},
+  {name:"霜月",desc:"紅葉と晩秋",motif:"✦  ❧  ✦",accent:"#ffd6b3",border:"rgba(234,167,111,.46)",glow:"linear-gradient(120deg,rgba(177,97,54,.23),transparent 72%)"},
+  {name:"師走",desc:"冬の星明かり",motif:"✧  ✦  ✧",accent:"#d2e4ff",border:"rgba(172,206,247,.49)",glow:"linear-gradient(120deg,rgba(92,143,205,.25),transparent 72%)"}
+];
+function updateMonthTheme(){
+  const month=new Date().getMonth();
+  const theme=MONTH_THEMES[month];
+  const panel=document.querySelector(".countdown-panel");
+  panel.style.setProperty("--month-accent",theme.accent);
+  panel.style.setProperty("--month-border",theme.border);
+  panel.style.setProperty("--month-glow",theme.glow);
+  panel.style.setProperty("--month-motif",JSON.stringify(theme.motif));
+  document.getElementById("month-caption").textContent=(month+1)+"月・"+theme.name+" — "+theme.desc;
+}
+updateMonthTheme();
+setInterval(updateMonthTheme,60*60*1000);
 
 const examStart = Date.parse("2027-01-16T09:30:00+09:00");
 const day1Start = Date.parse("2027-01-16T00:00:00+09:00");
