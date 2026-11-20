@@ -29,6 +29,8 @@ ul{padding:0;list-style:none;margin:0 0 14px}
 li+li{border-top:1px solid #354156}
 li a{display:block;padding:11px 2px;color:#a9ccff;text-decoration:none;overflow-wrap:anywhere}
 li a:hover,li a:focus-visible{text-decoration:underline}
+.subject-tag{display:inline-block;font-size:12px;font-weight:600;color:#e9eef7;background:#35445d;border-radius:5px;padding:2px 7px;margin:0 8px 4px 0}
+.pdf-title{vertical-align:middle}
 .missing{color:#aebdd0;margin:4px 0 14px;font-size:14px}
 #empty{color:#aebdd0}
 a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #a9ccff;outline-offset:3px}
@@ -61,6 +63,14 @@ const SUBJECTS = [
   {name:"情報",color:"#c6a3ff"}
 ];
 const CATEGORIES = ["共通テスト用","二次試験用","基礎確認事項"];
+const SUBJECT_ALIASES = {
+  "英語":["英文法","英作文","リーディング","リスニング"],
+  "数学":["数Ⅰ","数Ⅱ","数Ⅲ","数A","数B","数C","論理"],
+  "国語":["現代文","古文","漢文"],
+  "理科":["物理","化学","生物","地学","科学"],
+  "社会":["地理","歴史","日本史","世界史","政治経済","公共","公民"],
+  "情報":["情報Ⅰ","情報I","プログラミング"]
+};
 const search = document.getElementById("search");
 const container = document.getElementById("materials");
 const statusText = document.getElementById("status");
@@ -72,10 +82,12 @@ function valid(item){
     !item.file.startsWith("/") && !item.file.includes("..") &&
     item.file.startsWith(item.subject+"/"+item.category+"/") && /\.pdf$/i.test(item.file);
 }
+function searchableText(item){
+  return [item.title,item.subject,item.category,item.file,...(SUBJECT_ALIASES[item.subject]||[])].join(" ").normalize("NFKC").toLocaleLowerCase("ja");
+}
 function render(){
-  const terms=search.value.trim().toLocaleLowerCase("ja").split(/\s+/).filter(Boolean);
-  const data=allMaterials.filter(item=>terms.every(t=>
-    (item.title+" "+item.subject+" "+item.category+" "+item.file).toLocaleLowerCase("ja").includes(t)));
+  const terms=search.value.trim().normalize("NFKC").toLocaleLowerCase("ja").split(/\s+/).filter(Boolean);
+  const data=allMaterials.filter(item=>terms.every(t=>searchableText(item).includes(t)));
   container.replaceChildren();
   let visible=0;
   for(const subject of SUBJECTS){
@@ -110,7 +122,14 @@ function render(){
           const li=document.createElement("li");
           const a=document.createElement("a");
           a.href=item.file.split("/").map(encodeURIComponent).join("/");
-          a.textContent=item.title;
+          const tag=document.createElement("span");
+          tag.className="subject-tag";
+          tag.textContent=item.subject;
+          const title=document.createElement("span");
+          title.className="pdf-title";
+          title.textContent=item.title;
+          a.append(tag,title);
+          a.setAttribute("aria-label",item.subject+" "+item.category+" "+item.title);
           a.target="_blank";
           a.rel="noopener noreferrer";
           li.append(a);list.append(li);
