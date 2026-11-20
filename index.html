@@ -86,6 +86,14 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 .countdown-panel>.countdown-label,.countdown-panel>.countdown-units,.countdown-panel>.countdown-date,.countdown-panel>.month-caption{position:relative;z-index:1}
 @media(max-width:460px){.autumn-leaf{opacity:.55}@keyframes falling-maple{0%{transform:translateY(-30px) rotate(-25deg);opacity:0}12%{opacity:.52}85%{opacity:.48}100%{transform:translateY(310px) rotate(260deg);opacity:0}}}
 @media(prefers-reduced-motion:reduce){.autumn-leaf{animation:none;opacity:.42;top:var(--leaf-static-y)}}
+
+/* 共通テスト・二次試験・基礎事項の下位分類 */
+.topic-group{margin:7px 0 9px 10px;padding:0 0 0 12px;border-left:2px solid rgba(169,204,255,.28)}
+.topic-group+ .topic-group{border-top:0}
+.topic-group>summary{padding:9px 0;color:#dceaff;font-size:14px}
+.topic-group .category-count{color:#b8c9dc}
+.topic-group ul{margin-bottom:8px}
+.topic-group li a{padding:9px 2px}
 </style>
 </head>
 <body>
@@ -305,6 +313,64 @@ const SUBJECT_ALIASES = {
   "社会":["地理","歴史","日本史","世界史","政治経済","公共","公民"],
   "情報":["情報Ⅰ","情報I","プログラミング"]
 };
+
+const TOPICS={
+  "理科":["物理","化学","生物","地学"],
+  "社会":["日本史","世界史","地理","政治経済"],
+  "数学":["数学1A","数学2B","数学3C"],
+  "国語":["現代文","古文","漢文"]
+};
+function classifyTopic(item){
+  const topics=TOPICS[item.subject];
+  if(!topics)return null;
+  const parts=item.file.split("/");
+  if(parts.length>3 && topics.includes(parts[2]))return parts[2];
+  const value=(item.title+" "+parts.slice(3).join(" ")).normalize("NFKC").toLowerCase();
+  if(item.subject==="理科"){
+    if(/物理|力学|電磁気|熱力学|波動|単振動|万有引力|円運動/.test(value))return "物理";
+    if(/化学|アミノ酸|高分子|金属イオン|気液平衡|脂肪酸|糖類|有機|無機/.test(value))return "化学";
+    if(/生物|遺伝|細胞/.test(value))return "生物";
+    if(/地学|地震|気象|天文/.test(value))return "地学";
+  }
+  if(item.subject==="社会"){
+    if(/日本史/.test(value))return "日本史";
+    if(/世界史/.test(value))return "世界史";
+    if(/地理|地誌/.test(value))return "地理";
+    if(/政治|経済|公共|公民/.test(value))return "政治経済";
+  }
+  if(item.subject==="数学"){
+    if(/数学\s*(iii|Ⅲ|3)\s*c?|数\s*(iii|Ⅲ|3)|数学3c|数3c|数Ⅲ|微積|極限|複素数平面/.test(value))return "数学3C";
+    if(/数学\s*(ii|Ⅱ|2)\s*(b|bc)?|数\s*(ii|Ⅱ|2)|数学2b|数2b|数列|ベクトル/.test(value))return "数学2B";
+    if(/数学\s*(i|Ⅰ|1)\s*a?|数\s*(i|Ⅰ|1)|数学1a|数1a|確率|整数|図形の性質/.test(value))return "数学1A";
+  }
+  if(item.subject==="国語"){
+    if(/現代文|評論|小説/.test(value))return "現代文";
+    if(/古文|古語|古典単語/.test(value))return "古文";
+    if(/漢文|漢詩/.test(value))return "漢文";
+  }
+  return "その他・未分類";
+}
+function createMaterialList(items){
+  const list=document.createElement("ul");
+  for(const item of items){
+    const li=document.createElement("li");
+    const a=document.createElement("a");
+    a.href=item.file.split("/").map(encodeURIComponent).join("/");
+    const tag=document.createElement("span");
+    tag.className="subject-tag";
+    tag.textContent=item.subject;
+    const title=document.createElement("span");
+    title.className="pdf-title";
+    title.textContent=item.title;
+    a.append(tag,title);
+    a.setAttribute("aria-label",item.subject+" "+item.category+" "+item.title);
+    a.target="_blank";
+    a.rel="noopener noreferrer";
+    li.append(a);list.append(li);
+  }
+  return list;
+}
+
 const search = document.getElementById("search");
 const container = document.getElementById("materials");
 const statusText = document.getElementById("status");
@@ -317,7 +383,7 @@ function valid(item){
     item.file.startsWith(item.subject+"/"+item.category+"/") && /\.pdf$/i.test(item.file);
 }
 function searchableText(item){
-  return [item.title,item.subject,item.category,item.file,...(SUBJECT_ALIASES[item.subject]||[])].join(" ").normalize("NFKC").toLocaleLowerCase("ja");
+  return [item.title,item.subject,item.category,item.file,classifyTopic(item)||"",...(SUBJECT_ALIASES[item.subject]||[])].join(" ").normalize("NFKC").toLocaleLowerCase("ja");
 }
 function render(){
   const terms=search.value.trim().normalize("NFKC").toLocaleLowerCase("ja").split(/\s+/).filter(Boolean);
@@ -350,25 +416,33 @@ function render(){
       n.textContent="("+items.length+")";
       summary.append(n);
       detail.append(summary);
-      if(items.length){
-        const list=document.createElement("ul");
-        for(const item of items){
-          const li=document.createElement("li");
-          const a=document.createElement("a");
-          a.href=item.file.split("/").map(encodeURIComponent).join("/");
-          const tag=document.createElement("span");
-          tag.className="subject-tag";
-          tag.textContent=item.subject;
-          const title=document.createElement("span");
-          title.className="pdf-title";
-          title.textContent=item.title;
-          a.append(tag,title);
-          a.setAttribute("aria-label",item.subject+" "+item.category+" "+item.title);
-          a.target="_blank";
-          a.rel="noopener noreferrer";
-          li.append(a);list.append(li);
+      if(TOPICS[subject.name]){
+        const groups=[...TOPICS[subject.name],"その他・未分類"];
+        for(const topic of groups){
+          const topicItems=items.filter(item=>classifyTopic(item)===topic);
+          if(terms.length && !topicItems.length)continue;
+          if(topic==="その他・未分類" && !topicItems.length)continue;
+          const group=document.createElement("details");
+          group.className="topic-group";
+          group.open=terms.length>0;
+          const topicSummary=document.createElement("summary");
+          topicSummary.append(document.createTextNode(topic));
+          const topicCount=document.createElement("span");
+          topicCount.className="category-count";
+          topicCount.textContent="("+topicItems.length+")";
+          topicSummary.append(topicCount);
+          group.append(topicSummary);
+          if(topicItems.length)group.append(createMaterialList(topicItems));
+          else{
+            const p=document.createElement("p");
+            p.className="missing";
+            p.textContent="教材はまだありません";
+            group.append(p);
+          }
+          detail.append(group);
         }
-        detail.append(list);
+      }else if(items.length){
+        detail.append(createMaterialList(items));
       }else{
         const p=document.createElement("p");
         p.className="missing";
