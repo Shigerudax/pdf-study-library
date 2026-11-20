@@ -45,7 +45,7 @@ a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #a9c
 .countdown-suffix{font-size:14px;color:#b9cce6}
 @media(max-width:460px){.countdown-panel{padding:18px 10px}.countdown-units{gap:10px}.countdown-number{font-size:clamp(1.6rem,7vw,2.4rem)}}
 
-</style>
+.exam-day-message{font-size:clamp(1.3rem,4vw,2rem);font-weight:750;color:#fff;line-height:1.5}\n</style>
 </head>
 <body>
 <header><h1>大学入試 PDF教材ライブラリ</h1><p>共通テスト・難関大学入試対策</p></header>
@@ -81,26 +81,40 @@ a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #a9c
 "use strict";
 
 const examStart = Date.parse("2027-01-16T09:30:00+09:00");
+const day1Start = Date.parse("2027-01-16T00:00:00+09:00");
+const day2Start = Date.parse("2027-01-17T00:00:00+09:00");
 const examEnd = Date.parse("2027-01-18T00:00:00+09:00");
+const countdownLabel = document.querySelector(".countdown-label");
+const countdownDate = document.getElementById("countdown-date");
+const countdownUnits = document.getElementById("countdown-units");
 function updateCountdown(){
   const now=Date.now();
-  const units=document.getElementById("countdown-units");
-  if(now>=examStart){
-    units.textContent=now<examEnd?"共通テスト実施中":"2027年度の共通テストは終了しました";
-    units.style.fontSize="clamp(1.2rem,4vw,1.9rem)";
-    units.style.fontWeight="700";
-    return true;
+  if(now>=day1Start){
+    countdownUnits.classList.add("exam-day-message");
+    countdownUnits.replaceChildren();
+    if(now<day2Start){
+      countdownLabel.textContent="2027年度 大学入学共通テスト 1日目";
+      countdownUnits.textContent="いよいよ本番です、頑張りましょう！";
+      countdownDate.textContent="1日目：2027年1月16日（土）";
+    }else if(now<examEnd){
+      countdownLabel.textContent="2027年度 大学入学共通テスト 2日目";
+      countdownUnits.textContent="いよいよ本番です、頑張りましょう！";
+      countdownDate.textContent="2日目：2027年1月17日（日）";
+    }else{
+      countdownLabel.textContent="2027年度 大学入学共通テスト";
+      countdownUnits.textContent="共通テストお疲れさまでした！";
+      countdownDate.textContent="本試験：2027年1月16日（土）・17日（日）";
+    }
+    return;
   }
   const remaining=Math.ceil((examStart-now)/1000);
   document.getElementById("days").textContent=Math.floor(remaining/86400);
   document.getElementById("hours").textContent=String(Math.floor(remaining%86400/3600)).padStart(2,"0");
   document.getElementById("minutes").textContent=String(Math.floor(remaining%3600/60)).padStart(2,"0");
   document.getElementById("seconds").textContent=String(remaining%60).padStart(2,"0");
-  return false;
 }
-if(!updateCountdown()){
-  const countdownInterval=setInterval(()=>{if(updateCountdown())clearInterval(countdownInterval)},1000);
-}
+updateCountdown();
+setInterval(updateCountdown,1000);
 
 const SUBJECTS = [
   {name:"英語",color:"#81b4ff"},
