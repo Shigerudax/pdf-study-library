@@ -48,7 +48,7 @@ a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #a9c
 .exam-day-message{font-size:clamp(1.3rem,4vw,2rem);font-weight:750;color:#fff;line-height:1.5}\n
 /* 都市写真を鮮明に見せ、教材カードは可読性を確保 */
 body{min-height:100vh;position:relative;background:#101827;isolation:isolate}
-body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background-image:var(--landscape-image,none);background-size:cover;background-position:center center;background-repeat:no-repeat;filter:saturate(.78) contrast(.94) brightness(1.06)}
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background-image:var(--landscape-image,none);background-size:cover;background-position:center 40%;background-repeat:no-repeat;filter:saturate(.82) contrast(.96) brightness(1.04)}
 body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(5,12,24,.12) 0%,rgba(5,12,24,.2) 42%,rgba(5,12,24,.28) 100%)}
 header{background:rgba(10,23,42,.48);backdrop-filter:blur(5px)}
 header h1,header p{text-shadow:0 2px 12px rgba(0,0,0,.8)}
@@ -99,13 +99,13 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 
 /* 天気はOpen-Meteo（APIキー不要）。初期値は東京、位置情報はボタン操作時だけ利用。 */
 const BACKGROUND_PHOTOS={
-  morning:"https://images.unsplash.com/photo-1768211412332-259052acef63?auto=format&fit=crop&w=2200&q=85",
-  day:"https://images.unsplash.com/photo-1768211412332-259052acef63?auto=format&fit=crop&w=2200&q=85",
-  evening:"https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=2200&q=85",
-  night:"https://images.unsplash.com/photo-1770888948551-d4610d14161f?auto=format&fit=crop&w=2200&q=85",
-  rain:"https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=2200&q=85",
-  cloudy:"https://images.unsplash.com/photo-1758496652056-5f3aa8b9764c?auto=format&fit=crop&w=2200&q=85",
-  snow:"https://images.unsplash.com/photo-1758496652056-5f3aa8b9764c?auto=format&fit=crop&w=2200&q=85"
+  morning:"https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2400&q=85",
+  day:"https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=2400&q=85",
+  evening:"https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=2400&q=85",
+  night:"https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=2400&q=85",
+  rain:"https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=2400&q=85",
+  cloudy:"https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2400&q=85",
+  snow:"https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=2400&q=85"
 };
 const weatherDescription=document.getElementById("weather-description");
 const weatherLocation=document.getElementById("weather-location");
