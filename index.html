@@ -34,10 +34,35 @@ li a:hover,li a:focus-visible{text-decoration:underline}
 .missing{color:#aebdd0;margin:4px 0 14px;font-size:14px}
 #empty{color:#aebdd0}
 a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #a9ccff;outline-offset:3px}
+
+.countdown{max-width:1100px;margin:0 auto;padding:22px 20px 0}
+.countdown-panel{background:linear-gradient(125deg,#1e3049,#172338);border:1px solid #3d5474;border-radius:14px;padding:22px 24px;text-align:center}
+.countdown-label{color:#b9cce6;font-weight:650;letter-spacing:.05em;margin:0 0 8px}
+.countdown-date{color:#a9b9d0;font-size:13px;margin:12px 0 0}
+.countdown-units{display:flex;align-items:baseline;justify-content:center;gap:clamp(10px,3vw,28px);flex-wrap:wrap}
+.countdown-unit{display:flex;align-items:baseline;gap:5px}
+.countdown-number{font-size:clamp(2rem,6vw,3.7rem);font-weight:750;font-variant-numeric:tabular-nums;color:#fff;line-height:1.25}
+.countdown-suffix{font-size:14px;color:#b9cce6}
+@media(max-width:460px){.countdown-panel{padding:18px 10px}.countdown-units{gap:10px}.countdown-number{font-size:clamp(1.6rem,7vw,2.4rem)}}
+
 </style>
 </head>
 <body>
 <header><h1>大学入試 PDF教材ライブラリ</h1><p>共通テスト・難関大学入試対策</p></header>
+
+<section class="countdown" aria-label="大学入学共通テストまでの残り時間">
+  <div class="countdown-panel">
+    <p class="countdown-label">2027年度 大学入学共通テストまで</p>
+    <div id="countdown-units" class="countdown-units" role="timer" aria-live="off">
+      <span class="countdown-unit"><span id="days" class="countdown-number">--</span><span class="countdown-suffix">日</span></span>
+      <span class="countdown-unit"><span id="hours" class="countdown-number">--</span><span class="countdown-suffix">時間</span></span>
+      <span class="countdown-unit"><span id="minutes" class="countdown-number">--</span><span class="countdown-suffix">分</span></span>
+      <span class="countdown-unit"><span id="seconds" class="countdown-number">--</span><span class="countdown-suffix">秒</span></span>
+    </div>
+    <p id="countdown-date" class="countdown-date">本試験：2027年1月16日（土）・17日（日）</p>
+  </div>
+</section>
+
 <main>
 <nav aria-label="科目">
 <a href="#subject-英語" style="color:#81b4ff">英語</a>
@@ -54,6 +79,29 @@ a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #a9c
 </main>
 <script>
 "use strict";
+
+const examStart = Date.parse("2027-01-16T09:30:00+09:00");
+const examEnd = Date.parse("2027-01-18T00:00:00+09:00");
+function updateCountdown(){
+  const now=Date.now();
+  const units=document.getElementById("countdown-units");
+  if(now>=examStart){
+    units.textContent=now<examEnd?"共通テスト実施中":"2027年度の共通テストは終了しました";
+    units.style.fontSize="clamp(1.2rem,4vw,1.9rem)";
+    units.style.fontWeight="700";
+    return true;
+  }
+  const remaining=Math.ceil((examStart-now)/1000);
+  document.getElementById("days").textContent=Math.floor(remaining/86400);
+  document.getElementById("hours").textContent=String(Math.floor(remaining%86400/3600)).padStart(2,"0");
+  document.getElementById("minutes").textContent=String(Math.floor(remaining%3600/60)).padStart(2,"0");
+  document.getElementById("seconds").textContent=String(remaining%60).padStart(2,"0");
+  return false;
+}
+if(!updateCountdown()){
+  const countdownInterval=setInterval(()=>{if(updateCountdown())clearInterval(countdownInterval)},1000);
+}
+
 const SUBJECTS = [
   {name:"英語",color:"#81b4ff"},
   {name:"数学",color:"#ffae66"},
