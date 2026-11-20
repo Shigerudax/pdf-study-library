@@ -71,6 +71,18 @@ def build():
                     "file": relative,
                     "uploaded_at": upload_datetime(path),
                 })
+    daily_dir = ROOT / "毎日の知識補充問題"
+    if daily_dir.is_dir():
+        for path in sorted(daily_dir.rglob("*"), key=lambda p: p.as_posix().casefold()):
+            if not path.is_file() or path.suffix.lower() != ".pdf":
+                continue
+            records.append({
+                "title": title_from_filename(path.name),
+                "subject": "毎日の知識補充問題",
+                "category": "毎日の知識補充問題",
+                "file": path.relative_to(ROOT).as_posix(),
+                "uploaded_at": upload_datetime(path),
+            })
     return records
 
 if __name__ == "__main__":
