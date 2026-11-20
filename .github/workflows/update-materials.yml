@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '毎日の知識補充問題/**/*.pdf'
       - '英語/**/*.pdf'
       - '数学/**/*.pdf'
       - '国語/**/*.pdf'
