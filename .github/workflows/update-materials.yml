@@ -1,0 +1,43 @@
+name: 教材一覧の自動更新
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '英語/**/*.pdf'
+      - '数学/**/*.pdf'
+      - '国語/**/*.pdf'
+      - '理科/**/*.pdf'
+      - '社会/**/*.pdf'
+      - '情報/**/*.pdf'
+      - 'scripts/build_materials.py'
+      - '.github/workflows/update-materials.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: material-index-main
+  cancel-in-progress: false
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: PDF教材一覧を生成
+        run: python3 scripts/build_materials.py
+      - name: 更新があればコミット
+        run: |
+          if [[ -n "$(git status --porcelain -- materials.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add materials.json
+            git commit -m "Update PDF materials index [skip ci]"
+            git push
+          else
+            echo "教材一覧に変更はありません"
+          fi
