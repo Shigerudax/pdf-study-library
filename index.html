@@ -95,6 +95,13 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 .topic-group .category-count{color:#b8c9dc}
 .topic-group ul{margin-bottom:8px}
 .topic-group li a{padding:9px 2px}
+.daily-nav{font-size:clamp(16px,2vw,20px);font-weight:800;padding:12px 18px;background:linear-gradient(115deg,#4b396f,#29436a);color:#fff!important;border:1px solid #bba8f7}
+.daily-section{margin:0 0 24px}
+.daily-feature{border:2px solid #c5b0ff;border-radius:16px;padding:23px;background:linear-gradient(125deg,rgba(48,39,82,.94),rgba(20,40,67,.92));box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.daily-feature h2{font-size:clamp(22px,3.8vw,31px);margin:0 0 8px;color:#fff}
+.daily-feature .daily-intro{color:#d9d4f6;font-size:14px;margin:0 0 15px}
+.daily-feature ul,.daily-feature .missing{margin:0}
+@media(max-width:500px){.daily-feature{padding:17px}.daily-nav{width:100%;text-align:center}}
 </style>
 </head>
 <body>
@@ -117,7 +124,8 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 </section>
 
 <main>
-<nav aria-label="科目">
+<nav aria-label="教材の大分類">
+<a class="daily-nav" href="#daily-knowledge">✦ 毎日の知識補充問題</a>
 <a href="#subject-英語" style="color:#81b4ff">英語</a>
 <a href="#subject-数学" style="color:#ffae66">数学</a>
 <a href="#subject-国語" style="color:#ff9292">国語</a>
@@ -127,6 +135,7 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 </nav>
 <input type="search" id="search" aria-label="教材を検索" placeholder="教材名・単元・科目を検索">
 <p id="status" role="status" aria-live="polite">教材一覧を読み込み中…</p>
+<section id="daily-knowledge" class="daily-section" aria-label="毎日の知識補充問題"></section>
 <section id="materials" aria-label="教材一覧"></section>
 <p id="empty" hidden>一致する教材はありません。</p>
 </main>
@@ -389,14 +398,15 @@ function createMaterialList(items){
 
 const search = document.getElementById("search");
 const container = document.getElementById("materials");
+const dailyContainer=document.getElementById("daily-knowledge");
 const statusText = document.getElementById("status");
 const empty = document.getElementById("empty");
 let allMaterials = [];
 function valid(item){
   return item && typeof item.title==="string" && typeof item.file==="string" &&
-    SUBJECTS.some(s=>s.name===item.subject) && CATEGORIES.includes(item.category) &&
+    (SUBJECTS.some(s=>s.name===item.subject) && CATEGORIES.includes(item.category) || item.subject==="毎日の知識補充問題" && item.category==="毎日の知識補充問題") &&
     !item.file.startsWith("/") && !item.file.includes("..") &&
-    item.file.startsWith(item.subject+"/"+item.category+"/") && /\.pdf$/i.test(item.file);
+    (item.subject==="毎日の知識補充問題"?item.file.startsWith("毎日の知識補充問題/"):item.file.startsWith(item.subject+"/"+item.category+"/")) && /\.pdf$/i.test(item.file);
 }
 function searchableText(item){
   return [item.title,item.subject,item.category,item.file,classifyTopic(item)||"",...(SUBJECT_ALIASES[item.subject]||[])].join(" ").normalize("NFKC").toLocaleLowerCase("ja");
@@ -405,7 +415,29 @@ function render(){
   const terms=search.value.trim().normalize("NFKC").toLocaleLowerCase("ja").split(/\s+/).filter(Boolean);
   const data=allMaterials.filter(item=>terms.every(t=>searchableText(item).includes(t)));
   container.replaceChildren();
-  let visible=0;
+  dailyContainer.replaceChildren();
+  const dailyItems=data.filter(item=>item.subject==="毎日の知識補充問題");
+  const showDaily=!terms.length || dailyItems.length>0;
+  if(showDaily){
+    const feature=document.createElement("article");
+    feature.className="daily-feature";
+    const heading=document.createElement("h2");
+    heading.textContent="✦ 毎日の知識補充問題";
+    feature.append(heading);
+    const intro=document.createElement("p");
+    intro.className="daily-intro";
+    intro.textContent="毎日の短時間学習・知識の確認に使う問題集";
+    feature.append(intro);
+    if(dailyItems.length)feature.append(createMaterialList(dailyItems));
+    else{
+      const note=document.createElement("p");
+      note.className="missing";
+      note.textContent="教材はまだありません";
+      feature.append(note);
+    }
+    dailyContainer.append(feature);
+  }
+  let visible=showDaily?1:0;
   for(const subject of SUBJECTS){
     const own=data.filter(item=>item.subject===subject.name);
     if(terms.length && !own.length) continue;
