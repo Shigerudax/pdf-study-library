@@ -137,11 +137,14 @@ const BACKGROUND_PHOTOS={
   morning:"https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2400&q=85",
   day:"https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=2400&q=85",
   evening:"https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=2400&q=85",
-  night:"https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=2400&q=85",
+  night:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Great_Seto_Bridge_at_night.jpg?width=2288",
   rain:"https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=2400&q=85",
   cloudy:"https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2400&q=85",
   snow:"https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=2400&q=85"
 };
+/* 夜景写真: Mlaurenti / Wikimedia Commons / CC BY-SA 3.0
+   https://commons.wikimedia.org/wiki/File:Great_Seto_Bridge_at_night.jpg
+   https://creativecommons.org/licenses/by-sa/3.0/ */
 const weatherDescription=document.getElementById("weather-description");
 const weatherLocation=document.getElementById("weather-location");
 let currentWeatherCode=null;
@@ -162,7 +165,7 @@ function applyBackground(){
   document.documentElement.style.setProperty("--landscape-image",'url("'+BACKGROUND_PHOTOS[scene]+'")');
   const timeNames={morning:"朝",day:"昼",evening:"夕方",night:"夜"};
   const weatherNames={rain:"雨",cloudy:"曇り",snow:"雪"};
-  weatherDescription.textContent=(currentWeatherCode===null?"時刻に連動":weatherArea+"の天気に連動")+" · "+(weatherNames[scene]||timeNames[scene])+"の風景";
+  weatherDescription.textContent=(currentWeatherCode===null?"時刻に連動":weatherArea+"の天気に連動")+" · "+(scene==="night"?"瀬戸大橋の夜景":(weatherNames[scene]||timeNames[scene])+"の風景");
 }
 async function loadWeather(latitude,longitude,area){
   try{
