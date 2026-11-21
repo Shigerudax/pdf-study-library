@@ -108,6 +108,14 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 .daily-topic .category-count{font-weight:500}
 .daily-topic ul{margin-bottom:12px}
 .daily-topic .missing{padding-bottom:13px;font-size:13px}
+.web-practice{margin:30px 0 12px;padding:clamp(20px,4vw,36px);border:2px solid #91c9ff;border-radius:18px;background:linear-gradient(120deg,rgba(18,58,91,.96),rgba(32,39,87,.94));box-shadow:0 12px 30px rgba(0,0,0,.3)}
+.web-practice-head{display:flex;align-items:center;gap:18px}
+.web-practice-icon{font-size:clamp(35px,6vw,60px);color:#c5e5ff}
+.web-practice h2{font-size:clamp(25px,4vw,36px);margin:0 0 8px;color:white}
+.web-practice p{margin:0;color:#d3e8ff;line-height:1.7}
+.web-practice-button{display:inline-block;margin-top:20px;padding:13px 24px;border-radius:10px;background:#d2e9ff;color:#112f4d;text-decoration:none;font-size:17px;font-weight:800}
+.web-practice-button:hover,.web-practice-button:focus-visible{background:#fff;text-decoration:underline}
+@media(max-width:480px){.web-practice-head{align-items:flex-start;gap:12px}.web-practice-button{display:block;text-align:center}}
 </style>
 </head>
 <body>
@@ -144,6 +152,7 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 <section id="daily-knowledge" class="daily-section" aria-label="毎日の知識補充問題"></section>
 <section id="materials" aria-label="教材一覧"></section>
 <p id="empty" hidden>一致する教材はありません。</p>
+<section id="web-practice" class="web-practice" aria-label="Web演習"><div class="web-practice-head"><span class="web-practice-icon" aria-hidden="true">✎</span><div><h2>Web演習</h2><p>ブラウザで解答・その場で自動採点。漢字・英単語・化学・社会・情報の練習ができます。</p></div></div><a class="web-practice-button" href="web-practice.html">Web演習を始める →</a></section>
 </main>
 <script>
 "use strict";
