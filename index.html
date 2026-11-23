@@ -25,6 +25,45 @@ h1{font-size:clamp(29px,5vw,47px);margin:12px 0 12px;line-height:1.3}
 footer{margin-top:28px;color:#91aac6;font-size:13px;line-height:1.7}
 a:focus-visible{outline:3px solid #a8d5ff;outline-offset:4px}
 @media(max-width:660px){.grid{grid-template-columns:1fr}.card{min-height:200px}}
+
+/* 大型カウントダウン：数値は営団地下鉄の車番をイメージしたサンセリフ */
+.countdown{margin:26px 0 0;padding:0;border:0;background:none}
+.countdown-panel{position:relative;overflow:hidden;border:1px solid #547391;border-radius:20px;padding:clamp(24px,5vw,46px) 22px;text-align:center;background:linear-gradient(135deg,#1a304e,#12243a)}
+.countdown-label{font-size:clamp(16px,2.8vw,23px);font-weight:750;letter-spacing:.03em;margin:0 0 20px}
+.countdown-units{display:flex;justify-content:center;align-items:baseline;gap:clamp(9px,2.4vw,28px);flex-wrap:wrap}
+.countdown-unit{display:flex;align-items:baseline;gap:5px}
+.countdown-number{font-family:"DIN 1451","Bahnschrift","Arial Narrow","Helvetica Neue",Arial,sans-serif;font-size:clamp(2.7rem,8vw,6.6rem);font-weight:850;line-height:1.15;font-stretch:condensed;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1,"lnum" 1;letter-spacing:.015em;color:#fff;text-shadow:0 3px 18px #0007}
+.countdown-suffix{font-size:clamp(12px,1.7vw,18px);color:#d0dff0}
+.countdown-date{color:#c9d9ed;margin:17px 0 0;font-size:clamp(13px,1.7vw,16px)}
+.exam-day-message{font-size:clamp(1.45rem,4vw,2.7rem);font-weight:800;line-height:1.65;padding:15px 0;color:white}
+.month-caption{font-size:13px;color:#c6d9ed;margin:12px 0 0}
+@media(max-width:480px){.countdown-panel{padding:24px 10px}.countdown-units{gap:8px}.countdown-number{font-size:clamp(2.4rem,9.3vw,3.45rem)}.countdown-suffix{font-size:12px}}
+/* 月別の控えめな季節装飾：カウントダウンだけに適用 */
+.countdown-panel{position:relative;overflow:hidden;isolation:isolate}
+.countdown-panel::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--month-glow,linear-gradient(120deg,rgba(112,156,206,.12),transparent));pointer-events:none}
+.countdown-panel::after{content:var(--month-motif,"✦  ✧  ✦");position:absolute;right:18px;top:50%;transform:translateY(-50%);color:var(--month-accent,#c8dbf3);opacity:.24;font-size:clamp(48px,8vw,100px);letter-spacing:.06em;white-space:nowrap;pointer-events:none}
+.countdown-label{color:var(--month-accent,#b9cce6)}
+.countdown-panel{border-color:var(--month-border,rgba(204,224,249,.32))}
+.month-caption{font-size:12px;color:#d4e1f1;margin:9px 0 0;letter-spacing:.04em}
+@media(max-width:460px){.countdown-panel::after{font-size:46px;right:5px;top:50%;opacity:.17}}
+
+/* 11月限定：カウントダウンの左右から紅葉が舞い落ちる */
+.autumn-leaves{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;display:none}
+.countdown-panel.is-november .autumn-leaves{display:block}
+.autumn-leaf{position:absolute;top:-45px;left:var(--leaf-x);font-size:var(--leaf-size);opacity:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));animation:falling-maple var(--leaf-duration) linear infinite;animation-delay:var(--leaf-delay);will-change:transform,opacity}
+@keyframes falling-maple{
+  0%{transform:translate3d(0,-30px,0) rotate(-25deg);opacity:0}
+  12%{opacity:.72}
+  45%{transform:translate3d(var(--leaf-sway),105px,0) rotate(90deg);opacity:.76}
+  85%{opacity:.68}
+  100%{transform:translate3d(calc(var(--leaf-sway) * -0.5),310px,0) rotate(260deg);opacity:0}
+}
+.countdown-panel.is-november::after{content:none}
+.countdown-panel>.countdown-label,.countdown-panel>.countdown-units,.countdown-panel>.countdown-date,.countdown-panel>.month-caption{position:relative;z-index:1}
+@media(max-width:460px){.autumn-leaf{opacity:.55}@keyframes falling-maple{0%{transform:translateY(-30px) rotate(-25deg);opacity:0}12%{opacity:.52}85%{opacity:.48}100%{transform:translateY(310px) rotate(260deg);opacity:0}}}
+@media(prefers-reduced-motion:reduce){.autumn-leaf{animation:none;opacity:.42;top:var(--leaf-static-y)}}
+
+
 </style>
 </head>
 <body>
@@ -36,7 +75,20 @@ a:focus-visible{outline:3px solid #a8d5ff;outline-offset:4px}
 <a class="card practice" href="web-practice.html"><span class="symbol" aria-hidden="true">✏️</span><h2>Web演習</h2><p>英語・国語・理科・地理・情報の4択問題を解いて、その場で自動採点。分野別演習にも対応。</p><span class="go">問題を解く →</span></a>
 <a class="card" href="pdf-library.html"><span class="symbol" aria-hidden="true">📚</span><h2>PDF教材ライブラリ</h2><p>科目・単元・用途別に教材を検索して閲覧。従来のPDF一覧・検索・学習用カウントダウンもこちら。</p><span class="go">教材を探す →</span></a>
 </div>
-<section class="countdown" aria-label="共通テストまでのカウントダウン"><strong>2027年度 大学入学共通テスト</strong><p id="countdown-text">2027年1月16日（土）・17日（日）</p></section>
+<section class="countdown" aria-label="入学試験までの残り時間">
+  <div class="countdown-panel">
+    <div class="autumn-leaves" aria-hidden="true"></div>
+    <p class="countdown-label">2027年度 大学入学共通テストまで</p>
+    <div id="countdown-units" class="countdown-units" role="timer" aria-live="off">
+      <span class="countdown-unit"><span id="days" class="countdown-number">--</span><span class="countdown-suffix">日</span></span>
+      <span class="countdown-unit"><span id="hours" class="countdown-number">--</span><span class="countdown-suffix">時間</span></span>
+      <span class="countdown-unit"><span id="minutes" class="countdown-number">--</span><span class="countdown-suffix">分</span></span>
+      <span class="countdown-unit"><span id="seconds" class="countdown-number">--</span><span class="countdown-suffix">秒</span></span>
+    </div>
+    <p id="countdown-date" class="countdown-date">本試験：2027年1月16日（土）・17日（日）</p>
+    <p id="month-caption" class="month-caption"></p>
+  </div>
+</section>
 <footer>Web演習・PDF教材にはそれぞれ直接アクセスできます。以前の科目別PDFリンクも引き続き利用できます。</footer>
 </main>
 <script>
@@ -45,23 +97,105 @@ a:focus-visible{outline:3px solid #a8d5ff;outline-offset:4px}
     location.replace("pdf-library.html"+location.hash);
     return;
   }
-  const el=document.getElementById("countdown-text");
-  const start=new Date("2027-01-16T00:00:00+09:00");
-  const second=new Date("2027-01-17T00:00:00+09:00");
-  const end=new Date("2027-01-18T00:00:00+09:00");
-  const exam=new Date("2027-02-25T00:00:00+09:00");
-  function update(){
-    const now=new Date();
-    if(now>=start&&now<second){el.textContent="1日目 — 本番です。頑張りましょう。";return;}
-    if(now>=second&&now<end){el.textContent="2日目 — 本番です。頑張りましょう。";return;}
-    const target=now<start?start:exam;
-    const ms=target-now;
-    if(ms<=0){el.textContent="試験日程を確認してください。";return;}
-    const days=Math.floor(ms/86400000),hours=Math.floor(ms%86400000/3600000),minutes=Math.floor(ms%3600000/60000);
-    el.textContent=(now<start?"共通テストまで":"国公立大学前期日程まで")+" 残り "+days+"日 "+hours+"時間 "+minutes+"分";
-  }
-  update();setInterval(update,60000);
 })();
+const MONTH_THEMES=[
+  {name:"睦月",desc:"新春の門松",motif:"🎍",accent:"#cce9ff",border:"rgba(173,219,250,.48)",glow:"linear-gradient(120deg,rgba(108,179,231,.24),transparent 72%)"},
+  {name:"如月",desc:"節分の鬼のお面",motif:"👹",accent:"#d9e3ff",border:"rgba(196,208,252,.46)",glow:"linear-gradient(120deg,rgba(136,151,222,.22),transparent 72%)"},
+  {name:"弥生",desc:"春の訪れ",motif:"✿  ❀  ✿",accent:"#ffd2e1",border:"rgba(255,180,208,.48)",glow:"linear-gradient(120deg,rgba(234,119,166,.22),transparent 72%)"},
+  {name:"卯月",desc:"桜の季節",motif:"❀  ✿  ❀",accent:"#ffd6e8",border:"rgba(255,190,216,.5)",glow:"linear-gradient(120deg,rgba(246,144,181,.24),transparent 72%)"},
+  {name:"皐月",desc:"新緑の季節",motif:"❧  ✦  ❧",accent:"#baf1d1",border:"rgba(149,232,181,.45)",glow:"linear-gradient(120deg,rgba(72,168,112,.23),transparent 72%)"},
+  {name:"水無月",desc:"雨と紫陽花",motif:"☂  ✧  ☂",accent:"#c4d8ff",border:"rgba(158,186,245,.47)",glow:"linear-gradient(120deg,rgba(95,123,210,.23),transparent 72%)"},
+  {name:"文月",desc:"夏の青空",motif:"☀  ✦  ☀",accent:"#ffe3a4",border:"rgba(248,210,130,.48)",glow:"linear-gradient(120deg,rgba(238,168,68,.24),transparent 72%)"},
+  {name:"葉月",desc:"盛夏の光",motif:"✺  ☀  ✺",accent:"#ffd49d",border:"rgba(250,181,109,.48)",glow:"linear-gradient(120deg,rgba(242,138,52,.25),transparent 72%)"},
+  {name:"長月",desc:"秋の始まり",motif:"☾  ✧  ☾",accent:"#f4d5ac",border:"rgba(230,185,131,.46)",glow:"linear-gradient(120deg,rgba(189,133,75,.22),transparent 72%)"},
+  {name:"神無月",desc:"深まる秋",motif:"❧  ✦  ❧",accent:"#ffd0a3",border:"rgba(242,160,104,.48)",glow:"linear-gradient(120deg,rgba(200,105,58,.24),transparent 72%)"},
+  {name:"霜月",desc:"色づく紅葉",motif:"🍁",accent:"#ffd6b3",border:"rgba(234,167,111,.46)",glow:"linear-gradient(120deg,rgba(177,97,54,.23),transparent 72%)"},
+  {name:"師走",desc:"舞い降りる粉雪",motif:"❄ ❅ ❄",accent:"#d2e4ff",border:"rgba(172,206,247,.49)",glow:"linear-gradient(120deg,rgba(92,143,205,.25),transparent 72%)"}
+];
+
+const autumnLeaves=document.querySelector(".autumn-leaves");
+for(let i=0;i<12;i++){
+  const leaf=document.createElement("span");
+  leaf.className="autumn-leaf";
+  leaf.textContent=i%3===0?"🍂":"🍁";
+  const side=i<6;
+  const offset=4+(i%6)*5;
+  leaf.style.setProperty("--leaf-x",side?offset+"%":(100-offset)+"%");
+  leaf.style.setProperty("--leaf-size",(20+i%4*5)+"px");
+  leaf.style.setProperty("--leaf-duration",(7+i%5*1.3)+"s");
+  leaf.style.setProperty("--leaf-delay",(-i*1.45)+"s");
+  leaf.style.setProperty("--leaf-sway",(side?1:-1)*(12+i%4*8)+"px");
+  leaf.style.setProperty("--leaf-static-y",(i%6*19+14)+"px");
+  autumnLeaves.append(leaf);
+}
+
+function updateMonthTheme(){
+  const month=new Date().getMonth();
+  const theme=MONTH_THEMES[month];
+  const panel=document.querySelector(".countdown-panel");
+  panel.classList.toggle("is-november",month===10);
+  panel.style.setProperty("--month-accent",theme.accent);
+  panel.style.setProperty("--month-border",theme.border);
+  panel.style.setProperty("--month-glow",theme.glow);
+  panel.style.setProperty("--month-motif",JSON.stringify(theme.motif));
+  document.getElementById("month-caption").textContent=(month+1)+"月・"+theme.name+" — "+theme.desc;
+}
+updateMonthTheme();
+setInterval(updateMonthTheme,60*60*1000);
+
+
+const examStart = Date.parse("2027-01-16T09:30:00+09:00");
+const day1Start = Date.parse("2027-01-16T00:00:00+09:00");
+const day2Start = Date.parse("2027-01-17T00:00:00+09:00");
+const examEnd = Date.parse("2027-01-18T00:00:00+09:00");
+const secondExamStart = Date.parse("2027-02-25T09:00:00+09:00");
+const countdownLabel = document.querySelector(".countdown-label");
+const countdownDate = document.getElementById("countdown-date");
+const countdownUnits = document.getElementById("countdown-units");
+const countdownTemplate = countdownUnits.innerHTML;
+function showCountdown(target){
+  if(!document.getElementById("days")){
+    countdownUnits.innerHTML=countdownTemplate;
+    countdownUnits.classList.remove("exam-day-message");
+  }
+  const remaining=Math.max(0,Math.ceil((target-Date.now())/1000));
+  document.getElementById("days").textContent=Math.floor(remaining/86400);
+  document.getElementById("hours").textContent=String(Math.floor(remaining%86400/3600)).padStart(2,"0");
+  document.getElementById("minutes").textContent=String(Math.floor(remaining%3600/60)).padStart(2,"0");
+  document.getElementById("seconds").textContent=String(remaining%60).padStart(2,"0");
+}
+function showMessage(message){
+  countdownUnits.classList.add("exam-day-message");
+  if(countdownUnits.textContent!==message)countdownUnits.textContent=message;
+}
+function updateCountdown(){
+  const now=Date.now();
+  if(now<day1Start){
+    countdownLabel.textContent="2027年度 大学入学共通テストまで";
+    countdownDate.textContent="本試験：2027年1月16日（土）・17日（日）";
+    showCountdown(examStart);
+  }else if(now<day2Start){
+    countdownLabel.textContent="2027年度 大学入学共通テスト 1日目";
+    countdownDate.textContent="1日目：2027年1月16日（土）";
+    showMessage("いよいよ本番です、頑張りましょう！");
+  }else if(now<examEnd){
+    countdownLabel.textContent="2027年度 大学入学共通テスト 2日目";
+    countdownDate.textContent="2日目：2027年1月17日（日）";
+    showMessage("いよいよ本番です、頑張りましょう！");
+  }else if(now<secondExamStart){
+    countdownLabel.textContent="2027年度 国公立大学二次試験（前期日程）まで";
+    countdownDate.textContent="前期日程：2027年2月25日（木）から（大学・学部により異なります）";
+    showCountdown(secondExamStart);
+  }else{
+    countdownLabel.textContent="2027年度 国公立大学二次試験（前期日程）";
+    countdownDate.textContent="前期日程：2027年2月25日（木）から（大学・学部により異なります）";
+    showMessage("二次試験本番です。これまでの成果を発揮しましょう！");
+  }
+}
+updateCountdown();
+setInterval(updateCountdown,1000);
+
+
 </script>
 </body>
 </html>
