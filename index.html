@@ -608,6 +608,7 @@ function render(){
     h2.append(count);
     article.append(h2);
     for(const category of CATEGORIES){
+      if(subject.name==="情報" && category==="二次試験用")continue;
       const items=own.filter(item=>item.category===category);
       if(filtering && !items.length) continue;
       const detail=document.createElement("details");
