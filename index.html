@@ -51,7 +51,8 @@ a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #a9c
 .countdown-date{color:#a9b9d0;font-size:13px;margin:12px 0 0}
 .countdown-units{display:flex;align-items:baseline;justify-content:center;gap:clamp(10px,3vw,28px);flex-wrap:wrap}
 .countdown-unit{display:flex;align-items:baseline;gap:5px}
-.countdown-number{font-size:clamp(2rem,6vw,3.7rem);font-weight:750;font-variant-numeric:tabular-nums;color:#fff;line-height:1.25}
+/* 営団地下鉄の行先案内・駅表示をイメージした、角張った等幅の数字 */
+.countdown-number{font-family:"DSEG7 Classic","DSEG7", "Digital-7", "Roboto Mono","Arial Narrow",monospace;font-size:clamp(2rem,6vw,3.7rem);font-weight:700;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-stretch:condensed;letter-spacing:.035em;color:#fff;line-height:1.25}
 .countdown-suffix{font-size:14px;color:#b9cce6}
 @media(max-width:460px){.countdown-panel{padding:18px 10px}.countdown-units{gap:10px}.countdown-number{font-size:clamp(1.6rem,7vw,2.4rem)}}
 
