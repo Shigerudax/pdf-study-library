@@ -26,13 +26,20 @@ footer{margin-top:28px;color:#91aac6;font-size:13px;line-height:1.7}
 a:focus-visible{outline:3px solid #a8d5ff;outline-offset:4px}
 @media(max-width:660px){.grid{grid-template-columns:1fr}.card{min-height:200px}}
 
-/* 大型カウントダウン：数値は営団地下鉄の車番をイメージしたサンセリフ */
+/* TRTA Numbers Sharp (ryo-a, CC0 / SIL OFL) — 数字だけに適用 */
+@font-face{
+ font-family:"TRTA Numbers Sharp";
+ src:url("https://cdn.jsdelivr.net/gh/ryo-a/TRTA-Numbers-Font@b469b1d4e4068e025cd3b323c408fe5959a36cba/woff2/trta_numbers_sharp.woff2") format("woff2");
+ font-style:normal;font-weight:400;font-display:swap;
+ unicode-range:U+0030-0039;
+}
+/* 大型カウントダウン：TRTA Numbers Sharpを使用 */
 .countdown{margin:26px 0 0;padding:0;border:0;background:none}
 .countdown-panel{position:relative;overflow:hidden;border:1px solid #547391;border-radius:20px;padding:clamp(24px,5vw,46px) 22px;text-align:center;background:linear-gradient(135deg,#1a304e,#12243a)}
 .countdown-label{font-size:clamp(16px,2.8vw,23px);font-weight:750;letter-spacing:.03em;margin:0 0 20px}
 .countdown-units{display:flex;justify-content:center;align-items:baseline;gap:clamp(9px,2.4vw,28px);flex-wrap:wrap}
 .countdown-unit{display:flex;align-items:baseline;gap:5px}
-.countdown-number{font-family:"DIN 1451","Bahnschrift","Arial Narrow","Helvetica Neue",Arial,sans-serif;font-size:clamp(2.7rem,8vw,6.6rem);font-weight:850;line-height:1.15;font-stretch:condensed;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1,"lnum" 1;letter-spacing:.015em;color:#fff;text-shadow:0 3px 18px #0007}
+.countdown-number{font-family:"TRTA Numbers Sharp","DIN 1451","Bahnschrift","Arial Narrow","Helvetica Neue",Arial,sans-serif;font-size:clamp(2.7rem,8vw,6.6rem);font-weight:400;line-height:1.15;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1,"lnum" 1;letter-spacing:.015em;color:#fff;text-shadow:0 3px 18px #0007}
 .countdown-suffix{font-size:clamp(12px,1.7vw,18px);color:#d0dff0}
 .countdown-date{color:#c9d9ed;margin:17px 0 0;font-size:clamp(13px,1.7vw,16px)}
 .exam-day-message{font-size:clamp(1.45rem,4vw,2.7rem);font-weight:800;line-height:1.65;padding:15px 0;color:white}
