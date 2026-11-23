@@ -163,6 +163,18 @@ html[data-solar-theme="day"] .web-practice h2,html[data-solar-theme="day"] .web-
 html[data-solar-theme="day"] .web-practice-button{background:#1e568a;color:#fff}
 html[data-solar-theme="day"] .web-practice-button:hover{background:#16416b}
 
+.search-tools{margin-bottom:16px;padding:16px;border:1px solid rgba(150,180,210,.4);border-radius:12px;background:rgba(21,38,60,.84)}
+.search-tools>label{display:block;font-weight:700;margin-bottom:9px}
+.search-tools input{margin-bottom:12px}
+.search-filters{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.search-filters label{flex:1 1 190px;font-size:13px;font-weight:650}
+.search-filters select{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid #8ba5c5;border-radius:8px;background:#1c293d;color:#fff;font:inherit;font-size:15px}
+.search-filters button{padding:12px 15px;border:1px solid #8ba5c5;border-radius:8px;background:#294564;color:white;font-weight:650;cursor:pointer}
+.search-filters button:hover{background:#375b80}
+html[data-solar-theme="day"] .search-tools{background:rgba(255,255,255,.93);border-color:#b3c9df}
+html[data-solar-theme="day"] .search-filters select{background:#fff;color:#193452;border-color:#9eb4cc}
+html[data-solar-theme="day"] .search-filters button{background:#e2eefb;color:#204a75;border-color:#9eb4cc}
+.search-filters select:focus-visible,.search-filters button:focus-visible{outline:2px solid #78b8ff;outline-offset:2px}
 </style>
 </head>
 <body>
@@ -194,7 +206,7 @@ html[data-solar-theme="day"] .web-practice-button:hover{background:#16416b}
 <a href="#subject-社会" style="color:#ecd775">社会</a>
 <a href="#subject-情報" style="color:#c6a3ff">情報</a>
 </nav>
-<input type="search" id="search" aria-label="教材を検索" placeholder="教材名・単元・科目を検索">
+<div class="search-tools"><label for="search">教材を検索</label><input type="search" id="search" aria-label="教材を検索" placeholder="教材名・単元を検索（スペース区切りで絞り込み）"><div class="search-filters"><label for="filter-subject">科目<select id="filter-subject"><option value="">すべての科目</option><option>英語</option><option>数学</option><option>国語</option><option>理科</option><option>社会</option><option>情報</option><option>毎日の知識補充問題</option></select></label><label for="filter-category">用途<select id="filter-category"><option value="">すべての用途</option><option>共通テスト用</option><option>二次試験用</option><option>基礎確認事項</option><option>毎日の知識補充問題</option></select></label><button id="clear-filters" type="button">条件をクリア</button></div></div>
 <p id="status" role="status" aria-live="polite">教材一覧を読み込み中…</p>
 <section id="daily-knowledge" class="daily-section" aria-label="毎日の知識補充問題"></section>
 <section id="materials" aria-label="教材一覧"></section>
@@ -500,6 +512,10 @@ function createMaterialList(items){
 }
 
 const search = document.getElementById("search");
+const subjectFilter=document.getElementById("filter-subject");
+const categoryFilter=document.getElementById("filter-category");
+const clearFilters=document.getElementById("clear-filters");
+function filtersActive(){return Boolean(search.value.trim()||subjectFilter.value||categoryFilter.value)}
 const container = document.getElementById("materials");
 const dailyContainer=document.getElementById("daily-knowledge");
 const DAILY_TOPICS=["漢字","英単語","化学","社会","情報"];
@@ -528,11 +544,12 @@ function dailyTopic(item){
 }
 function render(){
   const terms=search.value.trim().normalize("NFKC").toLocaleLowerCase("ja").split(/\s+/).filter(Boolean);
-  const data=allMaterials.filter(item=>terms.every(t=>searchableText(item).includes(t)));
+  const data=allMaterials.filter(item=>(!subjectFilter.value||item.subject===subjectFilter.value)&&(!categoryFilter.value||item.category===categoryFilter.value)&&terms.every(t=>searchableText(item).includes(t)));
+  const filtering=filtersActive();
   container.replaceChildren();
   dailyContainer.replaceChildren();
   const dailyItems=data.filter(item=>item.subject==="毎日の知識補充問題");
-  const showDaily=!terms.length || dailyItems.length>0;
+  const showDaily=(!filtering && !subjectFilter.value)||dailyItems.length>0;
   if(showDaily){
     const feature=document.createElement("article");
     feature.className="daily-feature";
@@ -547,10 +564,10 @@ function render(){
     dailyGrid.className="daily-topic-grid";
     for(const topic of DAILY_TOPICS){
       const topicItems=dailyItems.filter(item=>dailyTopic(item)===topic);
-      if(terms.length&&!topicItems.length)continue;
+      if(filtering&&!topicItems.length)continue;
       const group=document.createElement("details");
       group.className="daily-topic";
-      group.open=terms.length>0;
+      group.open=filtering;
       const summary=document.createElement("summary");
       summary.textContent=topic+" ("+topicItems.length+")";
       group.append(summary);
@@ -578,7 +595,7 @@ function render(){
   let visible=showDaily?1:0;
   for(const subject of SUBJECTS){
     const own=data.filter(item=>item.subject===subject.name);
-    if(terms.length && !own.length) continue;
+    if(filtering && !own.length) continue;
     visible++;
     const article=document.createElement("article");
     article.id="subject-"+subject.name;
@@ -592,7 +609,7 @@ function render(){
     article.append(h2);
     for(const category of CATEGORIES){
       const items=own.filter(item=>item.category===category);
-      if(terms.length && !items.length) continue;
+      if(filtering && !items.length) continue;
       const detail=document.createElement("details");
       detail.open=terms.length>0;
       const summary=document.createElement("summary");
@@ -606,7 +623,7 @@ function render(){
         const groups=[...TOPICS[subject.name],"その他・未分類"];
         for(const topic of groups){
           const topicItems=items.filter(item=>classifyTopic(item)===topic);
-          if(terms.length && !topicItems.length)continue;
+          if(filtering && !topicItems.length)continue;
           if(topic==="その他・未分類" && !topicItems.length)continue;
           const group=document.createElement("details");
           group.className="topic-group";
@@ -639,8 +656,8 @@ function render(){
     }
     container.append(article);
   }
-  empty.hidden=visible!==0;
-  statusText.textContent=allMaterials.length+" 件のPDF教材を登録中"+(terms.length?" · 検索結果 "+data.length+" 件":"");
+  empty.hidden=data.length!==0 || !filtering;
+  statusText.textContent=allMaterials.length+" 件のPDF教材を登録中"+(filtering?" · 検索結果 "+data.length+" 件":"");
 }
 async function init(){
   try{
@@ -656,8 +673,11 @@ async function init(){
   }
 }
 search.addEventListener("input",render);
+subjectFilter.addEventListener("change",render);
+categoryFilter.addEventListener("change",render);
+clearFilters.addEventListener("click",()=>{search.value="";subjectFilter.value="";categoryFilter.value="";render();search.focus();});
 document.querySelector("nav").addEventListener("click",()=>{
-  if(search.value){search.value="";render();}
+  if(filtersActive()){search.value="";subjectFilter.value="";categoryFilter.value="";render();}
 });
 init();
 </script>
