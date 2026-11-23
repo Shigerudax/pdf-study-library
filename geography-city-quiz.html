@@ -50,7 +50,7 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #c9e
 <main>
 <header><a href="web-practice.html">← Web演習の科目一覧</a><a href="index.html">トップページ</a></header>
 <h1>地図から都市名を当てるクイズ</h1>
-<p class="description">赤い地点がどの都市かを4択で答えます。地名のない地図から、海岸線・国境・位置関係を読み取りましょう。</p>
+<p class="description">赤い地点がどの都市かを4択で答えます。都市名のない衛星地図から、海岸線・地形・位置関係を読み取りましょう。</p>
 <section class="panel" id="setup">
 <h2>出題地域を選択</h2>
 <div class="select-row"><label for="region">地域</label><select id="region"><option value="all">全地域（60都市）</option></select><button id="start" class="primary">クイズ開始</button></div>
@@ -58,12 +58,12 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #c9e
 </section>
 <section class="panel hidden" id="quiz">
 <p id="progress"></p><div class="bar" aria-hidden="true"><div id="bar"></div></div>
-<div id="map" role="img" aria-label="地名を伏せた地図。赤い点が問題の都市の位置です"></div>
+<div id="map" role="img" aria-label="都市名のない衛星地図。赤い点が問題の都市の位置です"></div>
 <p id="question" class="question">赤い地点に位置する都市はどれですか？</p>
 <div id="answers" class="answers"></div>
 <div id="feedback" class="feedback hidden" role="status" aria-live="polite"></div>
 <div id="bottom"><button id="next" class="primary hidden">次の問題へ</button> <button id="reset" class="secondary">地域選択へ戻る</button></div>
-<p class="note">地図：© OpenStreetMap contributors © CARTO。地名表示のない地図を利用しています。オンライン接続が必要です。</p>
+<p class="note">地図：© Esriほか。都市名を表示しない衛星地図を利用しています。オンライン接続が必要です。</p>
 </section>
 <section class="panel hidden" id="result" aria-live="polite">
 <h2>演習結果</h2><p id="score" class="score"></p><p id="result-note"></p><button id="again" class="primary">もう一度挑戦</button> <button id="return" class="secondary">地域を選び直す</button>
@@ -81,9 +81,9 @@ function initMap(){
   if(map)return;
   if(typeof L==="undefined"){$("feedback").textContent="地図ライブラリを読み込めませんでした。ネットワーク接続を確認し、再読み込みしてください。";$("feedback").classList.remove("hidden");return}
   map=L.map("map",{zoomControl:true,attributionControl:true,worldCopyJump:true, minZoom:2,maxZoom:10});
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",{
-    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains:"abcd",maxZoom:19
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{
+    attribution:'Tiles &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+    maxZoom:19, crossOrigin:true
   }).addTo(map);
   marker=L.marker([0,0],{icon:L.divIcon({className:"",html:'<div class="marker-dot"></div>',iconSize:[22,22],iconAnchor:[11,11]}),keyboard:false}).addTo(map);
 }
