@@ -127,6 +127,41 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 .web-practice-button:hover,.web-practice-button:focus-visible{background:#fff;text-decoration:underline}
 @media(max-width:480px){.web-practice-head{align-items:flex-start;gap:12px}.web-practice-button{display:block;text-align:center}}
 .web-practice-pending{background:#53677e;color:#f0f4fa;cursor:default;opacity:.9}.web-practice-pending:hover{background:#53677e;text-decoration:none}
+
+/* 東京の日の出〜日の入りに連動する昼間の高コントラスト配色 */
+html[data-solar-theme="day"]{color-scheme:light}
+html[data-solar-theme="day"] body{background:#e9f2fc;color:#15263c}
+html[data-solar-theme="day"] body::before{filter:saturate(.9) contrast(.96) brightness(1.18)}
+html[data-solar-theme="day"] body::after{background:linear-gradient(180deg,rgba(235,246,255,.32),rgba(240,248,255,.55))}
+html[data-solar-theme="day"] header{background:rgba(243,249,255,.84)}
+html[data-solar-theme="day"] header h1,html[data-solar-theme="day"] header p{color:#172c45;text-shadow:none}
+html[data-solar-theme="day"] article{background:rgba(255,255,255,.94);border-color:rgba(55,85,120,.22);box-shadow:0 8px 24px rgba(35,65,100,.12)}
+html[data-solar-theme="day"] article h2,html[data-solar-theme="day"] summary{color:#162a43}
+html[data-solar-theme="day"] article h2 .count,html[data-solar-theme="day"] .category-count,html[data-solar-theme="day"] .upload-date,html[data-solar-theme="day"] .missing,html[data-solar-theme="day"] #empty,html[data-solar-theme="day"] #status{color:#455a70}
+html[data-solar-theme="day"] li+li,html[data-solar-theme="day"] details+details{border-color:#d4e0ed}
+html[data-solar-theme="day"] li a{color:#1254a0}
+html[data-solar-theme="day"] .subject-tag{background:#e2ebf6;color:#213d60}
+html[data-solar-theme="day"] .topic-group{border-color:#b9cce0}
+html[data-solar-theme="day"] .topic-group>summary{color:#234d7a}
+html[data-solar-theme="day"] nav a{background:rgba(255,255,255,.91);color:#174779;box-shadow:0 2px 10px rgba(30,60,90,.1)}
+html[data-solar-theme="day"] nav a:hover,html[data-solar-theme="day"] nav a:focus-visible{background:#e0edfc}
+html[data-solar-theme="day"] input{background:rgba(255,255,255,.96);border-color:#9eb4cc;color:#172b44}
+html[data-solar-theme="day"] input::placeholder{color:#52667c}
+html[data-solar-theme="day"] .countdown-panel{background:linear-gradient(125deg,rgba(246,251,255,.96),rgba(221,237,251,.95));border-color:#9db9d5}
+html[data-solar-theme="day"] .countdown-label{color:#244f7c}
+html[data-solar-theme="day"] .countdown-number,html[data-solar-theme="day"] .exam-day-message{color:#112c4a}
+html[data-solar-theme="day"] .countdown-suffix,html[data-solar-theme="day"] .countdown-date,html[data-solar-theme="day"] .month-caption{color:#365a7c}
+html[data-solar-theme="day"] .weather-strip{background:rgba(239,248,255,.91);color:#1c3958;text-shadow:none;border-color:#cad8e7}
+html[data-solar-theme="day"] .weather-strip button{background:#fff;color:#1a4a79;border-color:#9db4cb}
+html[data-solar-theme="day"] .daily-feature{background:linear-gradient(125deg,rgba(247,242,255,.97),rgba(232,243,255,.97));border-color:#b6a4df}
+html[data-solar-theme="day"] .daily-feature h2,html[data-solar-theme="day"] .daily-feature .daily-intro,html[data-solar-theme="day"] .daily-topic>summary{color:#2c2950}
+html[data-solar-theme="day"] .daily-topic{background:rgba(255,255,255,.82);border-color:#c8bce7}
+html[data-solar-theme="day"] .daily-nav{background:linear-gradient(115deg,#e6d8fc,#d5e8ff);color:#2c3159!important}
+html[data-solar-theme="day"] .web-practice{background:linear-gradient(120deg,rgba(232,245,255,.98),rgba(238,234,255,.98));border-color:#8db9e2}
+html[data-solar-theme="day"] .web-practice h2,html[data-solar-theme="day"] .web-practice p,html[data-solar-theme="day"] .web-practice-icon{color:#183c60}
+html[data-solar-theme="day"] .web-practice-button{background:#1e568a;color:#fff}
+html[data-solar-theme="day"] .web-practice-button:hover{background:#16416b}
+
 </style>
 </head>
 <body>
@@ -181,6 +216,47 @@ const BACKGROUND_PHOTOS={
 /* 夜景写真: Mlaurenti / Wikimedia Commons / CC BY-SA 3.0
    https://commons.wikimedia.org/wiki/File:Great_Seto_Bridge_at_night.jpg
    https://creativecommons.org/licenses/by-sa/3.0/ */
+/* 東京（JST）の天文上の日の出・日の入り。Open-Meteoの日別データを利用。 */
+let tokyoSunrise=null;
+let tokyoSunset=null;
+let tokyoSolarDate="";
+function tokyoDateKey(date=new Date()){
+  return new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"}).format(date);
+}
+function applySolarTheme(){
+  const now=Date.now();
+  // 取得できない間は端末の時刻ではなく東京時間で暫定判定する。
+  const tokyoHour=Number(new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Tokyo",hour:"2-digit",hourCycle:"h23"}).format(new Date()));
+  const valid=tokyoSunrise!==null&&tokyoSunset!==null&&tokyoSolarDate===tokyoDateKey();
+  const daytime=valid?(now>=tokyoSunrise&&now<tokyoSunset):(tokyoHour>=6&&tokyoHour<18);
+  document.documentElement.dataset.solarTheme=daytime?"day":"night";
+}
+async function updateTokyoSunTimes(){
+  try{
+    const url=new URL("https://api.open-meteo.com/v1/forecast");
+    url.search=new URLSearchParams({latitude:"35.6762",longitude:"139.6503",daily:"sunrise,sunset",forecast_days:"2",timezone:"Asia/Tokyo"}).toString();
+    const response=await fetch(url,{cache:"no-store"});
+    if(!response.ok)throw new Error("日の出・日の入り取得: "+response.status);
+    const data=await response.json();
+    const today=tokyoDateKey();
+    const index=data.daily?.time?.indexOf(today)??-1;
+    if(index<0)throw new Error("東京の日付が見つかりません");
+    const sunrise=Date.parse(data.daily.sunrise[index]+"+09:00");
+    const sunset=Date.parse(data.daily.sunset[index]+"+09:00");
+    if(!Number.isFinite(sunrise)||!Number.isFinite(sunset)||sunrise>=sunset)throw new Error("日の出・日の入りの形式が不正");
+    tokyoSunrise=sunrise;
+    tokyoSunset=sunset;
+    tokyoSolarDate=today;
+  }catch(error){
+    console.warn("東京の日の出・日の入りを取得できません。暫定時間帯を使用:",error);
+  }
+  applySolarTheme();
+}
+applySolarTheme();
+updateTokyoSunTimes();
+setInterval(()=>{applySolarTheme();if(tokyoSolarDate!==tokyoDateKey())updateTokyoSunTimes();},60000);
+setInterval(updateTokyoSunTimes,30*60*1000);
+
 const weatherDescription=document.getElementById("weather-description");
 const weatherLocation=document.getElementById("weather-location");
 let currentWeatherCode=null;
