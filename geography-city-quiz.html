@@ -53,20 +53,20 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #c9e
 <p class="description">赤い地点がどの都市かを4択で答えます。都市名のない衛星地図から、海岸線・地形・位置関係を読み取りましょう。</p>
 <section class="panel" id="setup">
 <h2>出題地域を選択</h2>
-<div class="select-row"><label for="region">地域</label><select id="region"><option value="all">全地域（60都市）</option></select><label for="city-count">出題数</label><select id="city-presets"></select><input id="city-count" type="number" min="1" step="1" inputmode="numeric" style="width:85px;padding:10px;font:inherit" aria-label="任意の出題数"> 問 <label for="city-order">出題順</label><select id="city-order"><option value="random">ランダム</option><option value="ordered">登録順</option></select><button id="start" class="primary">クイズ開始</button></div>
+<div class="select-row"><label for="region">地域</label><select id="region"><option value="all">全地域（60都市）</option></select><label for="city-count">出題数</label><select id="city-presets"></select><input id="city-count" required type="number" min="1" step="1" inputmode="numeric" style="width:85px;padding:10px;font:inherit" aria-label="任意の出題数"> 問 <label for="city-order">出題順</label><select id="city-order"><option value="random">ランダム</option><option value="ordered">登録順</option></select><button id="start" class="primary">クイズ開始</button></div>
 <p class="note">地域別は最大10問、全地域は最大60問です。出題数を自由に指定できます。選択肢の配置は毎回変わります。地図の拡大・縮小・移動が可能です。</p>
 </section>
 <section class="panel hidden" id="quiz">
 <p id="progress"></p><div class="bar" aria-hidden="true"><div id="bar"></div></div>
 <div id="map" role="img" aria-label="都市名のない衛星地図。赤い点が問題の都市の位置です"></div>
-<p id="question" class="question">赤い地点に位置する都市はどれですか？</p>
+<div id="map-status" class="note" role="status" aria-live="polite"></div><button id="map-retry" class="secondary hidden" type="button">地図を再読み込み</button><p id="question" class="question">赤い地点に位置する都市はどれですか？</p>
 <div id="answers" class="answers"></div>
 <div id="feedback" class="feedback hidden" role="status" aria-live="polite"></div>
 <div id="bottom"><button id="next" class="primary hidden">次の問題へ</button> <button id="reset" class="secondary">地域選択へ戻る</button></div>
 <p class="note">地図：© Esriほか。都市名を表示しない衛星地図を利用しています。オンライン接続が必要です。</p>
 </section>
 <section class="panel hidden" id="result" aria-live="polite">
-<h2>演習結果</h2><p id="score" class="score"></p><p id="result-note"></p><button id="again" class="primary">もう一度挑戦</button> <button id="return" class="secondary">地域を選び直す</button>
+<h2>演習結果</h2><p id="score" class="score"></p><p id="result-note"></p><div id="city-result-detail"></div><button id="again" class="primary">同じ問題をもう一度</button> <button id="city-review" class="secondary">誤答だけ再演習</button> <button id="return" class="secondary">地域を選び直す</button>
 </section>
 </main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -77,24 +77,60 @@ const all=REGIONS.flatMap(g=>g.cities.map(c=>({...c,region:g.region})));
 const randomize=a=>{const out=a.slice();for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]]}return out};
 REGIONS.forEach((g,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=g.region+"（10問）";$("region").append(o)});
 function updateCounts(){const max=$("region").value==="all"?all.length:REGIONS[Number($("region").value)].cities.length;$("city-count").max=max;$("city-count").value=Math.min(20,max);$("city-presets").replaceChildren();for(const n of [5,10,20,30,50].filter(n=>n<max).concat(max)){const o=document.createElement("option");o.value=n;o.textContent=n===max?"全問（"+max+"問）":n+"問";$("city-presets").append(o)}$("city-presets").value=$("city-count").value;}
-$("region").addEventListener("change",updateCounts);$("city-presets").addEventListener("change",()=>{$("city-count").value=$("city-presets").value});updateCounts();
-let questions=[],at=0,points=0,answered=false,map=null,marker=null,previousRegion="all";
+$("region").addEventListener("change",updateCounts);$("city-presets").addEventListener("change",()=>{$("city-count").value=$("city-presets").value});$("city-count").addEventListener("input",()=>{const v=$("city-count").value;const presets=$("city-presets");presets.value=v;if(presets.value!==v)presets.selectedIndex=-1});updateCounts();
+let questions=[],at=0,points=0,answered=false,map=null,marker=null,tiles=null,mapReady=false,waitingForMap=false,tileErrors=0,mapTimer=null,missed=[],previousRegion="all";
+
+function setMapState(ready,message,retry=false){
+ mapReady=ready;$("map-status").textContent=message;$("map-retry").classList.toggle("hidden",!retry);
+ for(const btn of $("answers").children)btn.disabled=!ready||answered;
+}
+function failMap(message){
+ waitingForMap=false;clearTimeout(mapTimer);setMapState(false,message,true);
+}
 function initMap(){
-  if(map)return;
-  if(typeof L==="undefined"){$("feedback").textContent="地図ライブラリを読み込めませんでした。ネットワーク接続を確認し、再読み込みしてください。";$("feedback").classList.remove("hidden");return}
-  map=L.map("map",{zoomControl:true,attributionControl:true,worldCopyJump:true, minZoom:2,maxZoom:10});
-  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{
-    attribution:'Tiles &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community',
-    maxZoom:19, crossOrigin:true
-  }).addTo(map);
+ if(map&&tiles&&marker)return true;
+ if(typeof L==="undefined"){failMap("地図ライブラリを読み込めませんでした。ネットワーク接続を確認してページを再読み込みしてください。");return false}
+ try{
+  map=L.map("map",{zoomControl:true,attributionControl:true,worldCopyJump:true,minZoom:2,maxZoom:10});
+  tiles=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{
+   attribution:'Tiles &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community',maxZoom:19
+  });
+  tiles.on("tileerror",()=>{if(waitingForMap)tileErrors++});
+  tiles.on("load",()=>{
+   if(!waitingForMap)return;
+   if(tileErrors){failMap("地図の一部を読み込めませんでした。再読み込みしてください。");return}
+   waitingForMap=false;clearTimeout(mapTimer);setMapState(true,"");
+  });
+  tiles.addTo(map);
   marker=L.marker([0,0],{icon:L.divIcon({className:"",html:'<div class="marker-dot"></div>',iconSize:[22,22],iconAnchor:[11,11]}),keyboard:false}).addTo(map);
+  return true;
+ }catch(e){if(map){try{map.remove()}catch(_){}}map=null;tiles=null;marker=null;failMap("地図を初期化できませんでした。再読み込みしてください。");return false}
+}
+function loadQuestionMap(){
+ clearTimeout(mapTimer);waitingForMap=false;tileErrors=0;
+ setMapState(false,"地図を読み込み中…");
+ if(!initMap())return;
+ const city=questions[at];if(!city)return;
+ try{
+  map.invalidateSize();
+  const zoom=["東アジア","ヨーロッパ","東南・南アジア"].includes(city.region)?5:4;
+  map.setView([city.lat,city.lng],zoom,{animate:false});marker.setLatLng([city.lat,city.lng]);
+  waitingForMap=true;tileErrors=0;
+  mapTimer=setTimeout(()=>failMap("地図の読み込みがタイムアウトしました。通信状況を確認して再読み込みしてください。"),15000);
+  tiles.redraw();
+ }catch(e){failMap("地図を読み込めませんでした。再読み込みしてください。")}
+}
+function launchCities(pool){
+ questions=pool.slice();at=0;points=0;missed=[];
+ $("setup").classList.add("hidden");$("result").classList.add("hidden");$("quiz").classList.remove("hidden");
+ showQuestion();$("quiz").scrollIntoView({block:"start"});
 }
 function start(){
-  previousRegion=$("region").value;
-  const pool=previousRegion==="all"?all:REGIONS[Number(previousRegion)].cities.map(c=>({...c,region:REGIONS[Number(previousRegion)].region}));
-  const n=Number($("city-count").value);if(!Number.isInteger(n)||n<1||n>pool.length){$("city-count").reportValidity();return;}questions=($("city-order").value==="random"?randomize(pool):pool).slice(0,n);at=0;points=0;
-  $("setup").classList.add("hidden");$("result").classList.add("hidden");$("quiz").classList.remove("hidden");
-  initMap();if(map)setTimeout(()=>map.invalidateSize(),0);showQuestion();
+ previousRegion=$("region").value;
+ const pool=previousRegion==="all"?all:REGIONS[Number(previousRegion)].cities.map(c=>({...c,region:REGIONS[Number(previousRegion)].region}));
+ const n=Number($("city-count").value);
+ if(!Number.isInteger(n)||n<1||n>pool.length){$("city-count").reportValidity();return}
+ launchCities(($("city-order").value==="random"?randomize(pool):pool).slice(0,n));
 }
 function candidateChoices(target){
   const nearby=all.filter(c=>c.name!==target.name&&c.region===target.region);
@@ -113,18 +149,13 @@ function showQuestion(){
     const btn=document.createElement("button");btn.type="button";btn.className="choice";btn.textContent=name;
     btn.addEventListener("click",()=>choose(name,btn));parent.append(btn);
   }
-  if(map){
-    map.invalidateSize();
-    const lat=city.lat,lng=city.lng;
-    const zoom=city.region==="東アジア"||city.region==="ヨーロッパ"?5:city.region==="東南・南アジア"?5:4;
-    map.setView([lat,lng],zoom,{animate:false});
-    marker.setLatLng([lat,lng]);
-  }
+  loadQuestionMap();
 }
 function choose(name,button){
-  if(answered)return;
+  if(answered||!mapReady)return;
   answered=true;const city=questions[at];const correct=name===city.name;
-  if(correct)points++;
+  if(correct)points++;else missed.push({city,chosen:name});
+  $("bar").style.width=((at+1)/questions.length*100)+"%";
   for(const b of $("answers").children){
     b.disabled=true;
     if(b.textContent===city.name)b.classList.add("correct");
@@ -142,15 +173,20 @@ function next(){
   if(at<questions.length){showQuestion();return}
   $("quiz").classList.add("hidden");$("result").classList.remove("hidden");
   $("score").textContent=points+" / "+questions.length+"問 正解";
-  $("result-note").textContent="正答率："+Math.round(points/questions.length*100)+"%。都市の位置をもう一度地図上で確認すると、定着しやすくなります。";
+  $("result-note").textContent="正答率："+Math.round(points/questions.length*100)+"%。";
+  const area=$("city-result-detail");area.replaceChildren();
+  if(missed.length){const d=document.createElement("details");const sm=document.createElement("summary");sm.textContent="誤答一覧（"+missed.length+"問）";d.append(sm);const ul=document.createElement("ul");for(const m of missed){const li=document.createElement("li");li.textContent="解答："+m.chosen+" ／ 正解："+m.city.name+"（"+m.city.country+"）";ul.append(li)}d.append(ul);area.append(d)}
+  $("city-review").disabled=!missed.length;
   $("result").scrollIntoView({behavior:"smooth",block:"start"});
 }
-function back(){$("quiz").classList.add("hidden");$("result").classList.add("hidden");$("setup").classList.remove("hidden");$("setup").scrollIntoView({behavior:"smooth",block:"start"})}
+function back(){clearTimeout(mapTimer);waitingForMap=false;$("quiz").classList.add("hidden");$("result").classList.add("hidden");$("setup").classList.remove("hidden");$("setup").scrollIntoView({behavior:"smooth",block:"start"})}
 $("start").addEventListener("click",start);
 $("next").addEventListener("click",next);
-$("reset").addEventListener("click",back);
+$("reset").addEventListener("click",()=>{if(confirm("現在の都市名クイズを終了して地域選択へ戻りますか？"))back()});
 $("return").addEventListener("click",back);
-$("again").addEventListener("click",()=>{$("region").value=previousRegion;start()});
+$("again").addEventListener("click",()=>launchCities(questions));
+$("city-review").addEventListener("click",()=>launchCities(missed.map(m=>m.city)));
+$("map-retry").addEventListener("click",()=>{if(typeof L==="undefined"){location.reload();return}loadQuestionMap()});
 </script>
 </body>
 </html>
