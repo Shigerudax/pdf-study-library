@@ -53,8 +53,8 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #c9e
 <p class="description">赤い地点がどの都市かを4択で答えます。都市名のない衛星地図から、海岸線・地形・位置関係を読み取りましょう。</p>
 <section class="panel" id="setup">
 <h2>出題地域を選択</h2>
-<div class="select-row"><label for="region">地域</label><select id="region"><option value="all">全地域（60都市）</option></select><button id="start" class="primary">クイズ開始</button></div>
-<p class="note">地域別は10問、全地域は60問です。出題順と選択肢の配置は毎回変わります。地図の拡大・縮小・移動が可能です。</p>
+<div class="select-row"><label for="region">地域</label><select id="region"><option value="all">全地域（60都市）</option></select><label for="city-count">出題数</label><select id="city-presets"></select><input id="city-count" type="number" min="1" step="1" inputmode="numeric" style="width:85px;padding:10px;font:inherit" aria-label="任意の出題数"> 問 <label for="city-order">出題順</label><select id="city-order"><option value="random">ランダム</option><option value="ordered">登録順</option></select><button id="start" class="primary">クイズ開始</button></div>
+<p class="note">地域別は最大10問、全地域は最大60問です。出題数を自由に指定できます。選択肢の配置は毎回変わります。地図の拡大・縮小・移動が可能です。</p>
 </section>
 <section class="panel hidden" id="quiz">
 <p id="progress"></p><div class="bar" aria-hidden="true"><div id="bar"></div></div>
@@ -76,6 +76,8 @@ const $=id=>document.getElementById(id);
 const all=REGIONS.flatMap(g=>g.cities.map(c=>({...c,region:g.region})));
 const randomize=a=>{const out=a.slice();for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]]}return out};
 REGIONS.forEach((g,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=g.region+"（10問）";$("region").append(o)});
+function updateCounts(){const max=$("region").value==="all"?all.length:REGIONS[Number($("region").value)].cities.length;$("city-count").max=max;$("city-count").value=Math.min(20,max);$("city-presets").replaceChildren();for(const n of [5,10,20,30,50].filter(n=>n<max).concat(max)){const o=document.createElement("option");o.value=n;o.textContent=n===max?"全問（"+max+"問）":n+"問";$("city-presets").append(o)}$("city-presets").value=$("city-count").value;}
+$("region").addEventListener("change",updateCounts);$("city-presets").addEventListener("change",()=>{$("city-count").value=$("city-presets").value});updateCounts();
 let questions=[],at=0,points=0,answered=false,map=null,marker=null,previousRegion="all";
 function initMap(){
   if(map)return;
@@ -90,7 +92,7 @@ function initMap(){
 function start(){
   previousRegion=$("region").value;
   const pool=previousRegion==="all"?all:REGIONS[Number(previousRegion)].cities.map(c=>({...c,region:REGIONS[Number(previousRegion)].region}));
-  questions=randomize(pool);at=0;points=0;
+  const n=Number($("city-count").value);if(!Number.isInteger(n)||n<1||n>pool.length){$("city-count").reportValidity();return;}questions=($("city-order").value==="random"?randomize(pool):pool).slice(0,n);at=0;points=0;
   $("setup").classList.add("hidden");$("result").classList.add("hidden");$("quiz").classList.remove("hidden");
   initMap();if(map)setTimeout(()=>map.invalidateSize(),0);showQuestion();
 }
