@@ -199,6 +199,7 @@ html[data-solar-theme="day"] .search-filters button{background:#e2eefb;color:#20
 <main>
 <nav aria-label="教材の大分類">
 <a href="index.html" style="background:#315b82;color:#fff">⌂ トップに戻る</a>
+<a href="web-practice.html" style="background:#315b82;color:#fff">Web演習</a>
 <a class="daily-nav" href="#daily-knowledge">✦ 毎日の知識補充問題</a>
 <a href="#subject-英語" style="color:#81b4ff">英語</a>
 <a href="#subject-数学" style="color:#ffae66">数学</a>
@@ -212,7 +213,7 @@ html[data-solar-theme="day"] .search-filters button{background:#e2eefb;color:#20
 <section id="daily-knowledge" class="daily-section" aria-label="毎日の知識補充問題"></section>
 <section id="materials" aria-label="教材一覧"></section>
 <p id="empty" hidden>一致する教材はありません。</p>
-<section id="web-practice" class="web-practice" aria-label="Web演習"><div class="web-practice-head"><span class="web-practice-icon" aria-hidden="true">✎</span><div><h2>Web演習</h2><p>ブラウザで解答・その場で自動採点。漢字・英単語・化学・社会・情報の練習ができます。</p></div></div><a class="web-practice-button" href="web-practice.html">Web演習を始める →</a></section>
+<section id="web-practice" class="web-practice" aria-label="Web演習"><div class="web-practice-head"><span class="web-practice-icon" aria-hidden="true">✎</span><div><h2>Web演習</h2><p>科目・分野別の問題をブラウザで解答・自動採点。出題数の指定と誤答の復習にも対応。</p></div></div><a class="web-practice-button" href="web-practice.html">Web演習を始める →</a></section>
 </main>
 <script>
 "use strict";
@@ -380,7 +381,8 @@ const examStart = Date.parse("2027-01-16T09:30:00+09:00");
 const day1Start = Date.parse("2027-01-16T00:00:00+09:00");
 const day2Start = Date.parse("2027-01-17T00:00:00+09:00");
 const examEnd = Date.parse("2027-01-18T00:00:00+09:00");
-const secondExamStart = Date.parse("2027-02-25T09:00:00+09:00");
+const secondExamStart = Date.parse("2027-02-25T00:00:00+09:00");
+const secondExamDayEnd = Date.parse("2027-02-26T00:00:00+09:00");
 const countdownLabel = document.querySelector(".countdown-label");
 const countdownDate = document.getElementById("countdown-date");
 const countdownUnits = document.getElementById("countdown-units");
@@ -415,13 +417,17 @@ function updateCountdown(){
     countdownDate.textContent="2日目：2027年1月17日（日）";
     showMessage("いよいよ本番です、頑張りましょう！");
   }else if(now<secondExamStart){
-    countdownLabel.textContent="2027年度 国公立大学二次試験（前期日程）まで";
+    countdownLabel.textContent="2027年度 国公立大学前期日程の開始日まで";
     countdownDate.textContent="前期日程：2027年2月25日（木）から（大学・学部により異なります）";
     showCountdown(secondExamStart);
+  }else if(now<secondExamDayEnd){
+    countdownLabel.textContent="2027年度 国公立大学前期日程 開始日";
+    countdownDate.textContent="各大学の試験日時は募集要項で確認してください。";
+    showMessage("これまでの成果を発揮しましょう！");
   }else{
-    countdownLabel.textContent="2027年度 国公立大学二次試験（前期日程）";
-    countdownDate.textContent="前期日程：2027年2月25日（木）から（大学・学部により異なります）";
-    showMessage("二次試験本番です。これまでの成果を発揮しましょう！");
+    countdownLabel.textContent="2027年度 大学入試日程";
+    countdownDate.textContent="試験・合格発表等の日程は各大学の募集要項で確認してください。";
+    showMessage("前期日程の開始日を過ぎました");
   }
 }
 updateCountdown();
@@ -567,7 +573,7 @@ function render(){
     dailyGrid.className="daily-topic-grid";
     for(const topic of DAILY_TOPICS){
       const topicItems=dailyItems.filter(item=>dailyTopic(item)===topic);
-      if(filtering&&!topicItems.length)continue;
+      if(!topicItems.length)continue;
       const group=document.createElement("details");
       group.className="daily-topic";
       group.open=filtering;
@@ -610,12 +616,13 @@ function render(){
     count.textContent=own.length+" 件";
     h2.append(count);
     article.append(h2);
+    if(!own.length){const p=document.createElement("p");p.className="missing";p.textContent="登録教材はありません。";article.append(p);}
     for(const category of CATEGORIES){
       if(subject.name==="情報" && category==="二次試験用")continue;
       const items=own.filter(item=>item.category===category);
-      if(filtering && !items.length) continue;
+      if(!items.length) continue;
       const detail=document.createElement("details");
-      detail.open=terms.length>0;
+      detail.open=filtering;
       const summary=document.createElement("summary");
       summary.append(document.createTextNode(category));
       const n=document.createElement("span");
@@ -627,11 +634,11 @@ function render(){
         const groups=[...TOPICS[subject.name],"その他・未分類"];
         for(const topic of groups){
           const topicItems=items.filter(item=>classifyTopic(item)===topic);
-          if(filtering && !topicItems.length)continue;
+          if(!topicItems.length)continue;
           if(topic==="その他・未分類" && !topicItems.length)continue;
           const group=document.createElement("details");
           group.className="topic-group";
-          group.open=terms.length>0;
+          group.open=filtering;
           const topicSummary=document.createElement("summary");
           topicSummary.append(document.createTextNode(topic));
           const topicCount=document.createElement("span");
