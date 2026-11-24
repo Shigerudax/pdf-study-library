@@ -34,7 +34,7 @@ button:disabled{opacity:.7;cursor:default}
 .choice:hover:not(:disabled){background:#365677}
 .choice.correct{background:#174f3b;border:2px solid #7fdba3;color:white;opacity:1}
 .choice.wrong{background:#65343a;border:2px solid #fa9b9b;opacity:1}
-.feedback{margin-top:12px;padding:13px 16px;border-radius:9px;background:#10233b;line-height:1.8}
+.feedback{white-space:pre-line;margin-top:12px;padding:13px 16px;border-radius:9px;background:#10233b;line-height:1.8}
 .marker-dot{width:18px;height:18px;background:#ff4141;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 3px #be2b2b,0 1px 8px #0009}
 #bottom{margin-top:14px}
 .note{font-size:13px;color:#c2d2e8;margin-top:10px}
@@ -129,7 +129,7 @@ function choose(name,button){
     else if(b===button)b.classList.add("wrong");
   }
   $("progress").textContent=city.region+"｜第"+(at+1)+"問 / 全"+questions.length+"問　正解 "+points+"問";
-  $("feedback").textContent=(correct?"正解！":"不正解。")+" 正しくは「"+city.name+"」（"+city.country+"）です。";
+  const chosen=all.find(c=>c.name===name);const parts=[correct?"正解！":"不正解。","正解："+city.name+"（"+city.country+"）"];if(!correct&&chosen){parts.splice(1,0,"あなたの解答："+chosen.name+"（"+chosen.country+"）");const dy=city.lat-chosen.lat,dx=((city.lng-chosen.lng+540)%360)-180;const ns=Math.abs(dy)>=0.5?(dy>0?"北":"南"):"",ew=Math.abs(dx)>=0.5?(dx>0?"東":"西"):"";const dir=ns+ew;parts.push("位置の違い："+city.name+"は"+chosen.name+"から見て"+(dir?("おおむね"+dir+"側にあります。"):"緯度・経度が近い都市です。"));} $("feedback").textContent=parts.join("\n");
   $("feedback").classList.remove("hidden");
   $("next").textContent=at===questions.length-1?"結果を見る":"次の問題へ";
   $("next").classList.remove("hidden");
