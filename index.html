@@ -77,10 +77,10 @@ a:focus-visible{outline:3px solid #a8d5ff;outline-offset:4px}
 <main>
 <div class="eyebrow">大学入試対策｜共通テスト・二次試験</div>
 <h1>学習ポータル</h1>
-<p class="lead">学習方法を選んで、そのまま始められます。<br></p>
+<p class="lead">学習方法を選んで始めましょう。</p>
 <div class="grid" aria-label="学習メニュー">
-<a class="card practice" href="web-practice.html"><span class="symbol" aria-hidden="true">✏️</span><h2>Web演習</h2><p>英語・国語・理科・地理・情報の4択問題を解いて、その場で自動採点。分野別演習にも対応。</p><span class="go">問題を解く →</span></a>
-<a class="card" href="pdf-library.html"><span class="symbol" aria-hidden="true">📚</span><h2>PDF教材ライブラリ</h2><p>科目・単元・用途別に教材を検索して閲覧。従来のPDF一覧・検索・学習用カウントダウンもこちら。</p><span class="go">教材を探す →</span></a>
+<a class="card practice" href="web-practice.html"><span class="symbol" aria-hidden="true">✏️</span><h2>Web演習</h2><p>科目・分野別の問題を解いて自動採点。出題数の指定、誤答の復習にも対応。</p><span class="go">問題を解く →</span></a>
+<a class="card" href="pdf-library.html"><span class="symbol" aria-hidden="true">📚</span><h2>PDF教材ライブラリ</h2><p>科目・単元・用途別にPDF教材を検索・閲覧。</p><span class="go">教材を探す →</span></a>
 </div>
 <section class="countdown" aria-label="入学試験までの残り時間">
   <div class="countdown-panel">
@@ -96,7 +96,7 @@ a:focus-visible{outline:3px solid #a8d5ff;outline-offset:4px}
     <p id="month-caption" class="month-caption"></p>
   </div>
 </section>
-<footer>Web演習・PDF教材にはそれぞれ直接アクセスできます。以前の科目別PDFリンクも引き続き利用できます。</footer>
+
 </main>
 <script>
 (function(){
@@ -155,7 +155,8 @@ const examStart = Date.parse("2027-01-16T09:30:00+09:00");
 const day1Start = Date.parse("2027-01-16T00:00:00+09:00");
 const day2Start = Date.parse("2027-01-17T00:00:00+09:00");
 const examEnd = Date.parse("2027-01-18T00:00:00+09:00");
-const secondExamStart = Date.parse("2027-02-25T09:00:00+09:00");
+const secondExamStart = Date.parse("2027-02-25T00:00:00+09:00");
+const secondExamDayEnd = Date.parse("2027-02-26T00:00:00+09:00");
 const countdownLabel = document.querySelector(".countdown-label");
 const countdownDate = document.getElementById("countdown-date");
 const countdownUnits = document.getElementById("countdown-units");
@@ -190,13 +191,17 @@ function updateCountdown(){
     countdownDate.textContent="2日目：2027年1月17日（日）";
     showMessage("いよいよ本番です、頑張りましょう！");
   }else if(now<secondExamStart){
-    countdownLabel.textContent="2027年度 国公立大学二次試験（前期日程）まで";
+    countdownLabel.textContent="2027年度 国公立大学前期日程の開始日まで";
     countdownDate.textContent="前期日程：2027年2月25日（木）から（大学・学部により異なります）";
     showCountdown(secondExamStart);
+  }else if(now<secondExamDayEnd){
+    countdownLabel.textContent="2027年度 国公立大学前期日程 開始日";
+    countdownDate.textContent="各大学の試験日時は募集要項で確認してください。";
+    showMessage("これまでの成果を発揮しましょう！");
   }else{
-    countdownLabel.textContent="2027年度 国公立大学二次試験（前期日程）";
-    countdownDate.textContent="前期日程：2027年2月25日（木）から（大学・学部により異なります）";
-    showMessage("二次試験本番です。これまでの成果を発揮しましょう！");
+    countdownLabel.textContent="2027年度 大学入試日程";
+    countdownDate.textContent="試験・合格発表等の日程は各大学の募集要項で確認してください。";
+    showMessage("前期日程の開始日を過ぎました");
   }
 }
 updateCountdown();
