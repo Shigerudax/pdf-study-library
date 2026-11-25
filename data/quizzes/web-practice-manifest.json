@@ -1,0 +1,86 @@
+[
+  {
+    "key": "groups",
+    "path": "data/quizzes/english/basic.js",
+    "count": 50,
+    "chars": 15259
+  },
+  {
+    "key": "advancedGroups",
+    "path": "data/quizzes/english/advanced.js",
+    "count": 50,
+    "chars": 16476
+  },
+  {
+    "key": "chemistryGroups",
+    "path": "data/quizzes/chemistry/basics.js",
+    "count": 100,
+    "chars": 21614
+  },
+  {
+    "key": "inorganicGroups",
+    "path": "data/quizzes/chemistry/inorganic.js",
+    "count": 100,
+    "chars": 23555
+  },
+  {
+    "key": "sugarAminoGroups",
+    "path": "data/quizzes/chemistry/sugar-amino.js",
+    "count": 50,
+    "chars": 11820
+  },
+  {
+    "key": "geographyGroups",
+    "path": "data/quizzes/geography/basics.js",
+    "count": 200,
+    "chars": 48480
+  },
+  {
+    "key": "englishClozeGroups",
+    "path": "data/quizzes/english/cloze.js",
+    "count": 150,
+    "chars": 44043
+  },
+  {
+    "key": "informationGroups",
+    "path": "data/quizzes/information/basics.js",
+    "count": 120,
+    "chars": 33146
+  },
+  {
+    "key": "kobunQuizGroups",
+    "path": "data/quizzes/japanese/kobun.js",
+    "count": 200,
+    "chars": 67242
+  },
+  {
+    "key": "physicsGroups",
+    "path": "data/quizzes/physics/basics.js",
+    "count": 100,
+    "chars": 25775
+  },
+  {
+    "key": "secondaryEnglishGroups",
+    "path": "data/quizzes/english/secondary.js",
+    "count": 100,
+    "chars": 33719
+  },
+  {
+    "key": "organicGroups",
+    "path": "data/quizzes/chemistry/organic.js",
+    "count": 50,
+    "chars": 12564
+  },
+  {
+    "key": "englishContextGroups",
+    "path": "data/quizzes/english/context.js",
+    "count": 50,
+    "chars": 22982
+  },
+  {
+    "key": "englishContextHardGroups",
+    "path": "data/quizzes/english/context-hard.js",
+    "count": 50,
+    "chars": 29616
+  }
+]
