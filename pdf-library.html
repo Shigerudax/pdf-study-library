@@ -58,14 +58,12 @@ a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #a9c
 
 .exam-day-message{font-size:clamp(1.3rem,4vw,2rem);font-weight:750;color:#fff;line-height:1.5}\n
 /* 都市写真を鮮明に見せ、教材カードは可読性を確保 */
-body{min-height:100vh;position:relative;background:#101827;isolation:isolate}
-body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background-image:var(--landscape-image,none);background-size:cover;background-position:center 40%;background-repeat:no-repeat;filter:saturate(.82) contrast(.96) brightness(1.04)}
-body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(5,12,24,.12) 0%,rgba(5,12,24,.2) 42%,rgba(5,12,24,.28) 100%)}
-header{background:rgba(10,23,42,.48);backdrop-filter:blur(5px)}
+body{min-height:100vh;background:linear-gradient(150deg,#172b45,#101827 65%);background-attachment:fixed}
+header{background:rgba(10,23,42,.48);}
 header h1,header p{text-shadow:0 2px 12px rgba(0,0,0,.8)}
-article{background:rgba(15,27,45,.81);border:1px solid rgba(202,223,248,.23);box-shadow:0 8px 24px rgba(0,0,0,.23);backdrop-filter:blur(7px)}
-.countdown-panel{background:linear-gradient(125deg,rgba(19,37,62,.79),rgba(15,28,49,.8));border:1px solid rgba(204,224,249,.32);backdrop-filter:blur(7px)}
-nav a{background:rgba(16,31,52,.83);backdrop-filter:blur(5px)}
+article{background:rgba(15,27,45,.81);border:1px solid rgba(202,223,248,.23);box-shadow:0 8px 24px rgba(0,0,0,.23);}
+.countdown-panel{background:linear-gradient(125deg,rgba(19,37,62,.79),rgba(15,28,49,.8));border:1px solid rgba(204,224,249,.32);}
+nav a{background:rgba(16,31,52,.83);}
 input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 .weather-strip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 6%;font-size:13px;color:#fff;background:rgba(10,25,44,.6);border-top:1px solid rgba(255,255,255,.12);text-shadow:0 1px 5px rgba(0,0,0,.65)}
 .weather-strip button{background:rgba(28,55,87,.92);color:#fff;border:1px solid #8da8c8;border-radius:7px;padding:7px 10px;cursor:pointer}
@@ -130,10 +128,8 @@ input{background:rgba(14,27,47,.9);border-color:#8ba5c5}
 
 /* 東京の日の出〜日の入りに連動する昼間の高コントラスト配色 */
 html[data-solar-theme="day"]{color-scheme:light}
-html[data-solar-theme="day"] body{background:#e9f2fc;color:#15263c}
+html[data-solar-theme="day"] body{background:linear-gradient(150deg,#e2edf9,#f5f8fc 65%);background-attachment:fixed;color:#15263c}
 /* 晴天の昼は首里城の写真を表示。日中も背景写真を維持する。 */
-html[data-solar-theme="day"] body::before{background-image:var(--landscape-image,none);filter:saturate(.94) brightness(1.07);background-position:center 42%}
-html[data-solar-theme="day"] body::after{background:radial-gradient(ellipse at 82% 9%,rgba(255,255,255,.92),transparent 42%),linear-gradient(180deg,rgba(236,246,255,.14),rgba(246,250,255,.2))}
 html[data-solar-theme="day"] header{background:rgba(243,249,255,.84)}
 html[data-solar-theme="day"] header h1,html[data-solar-theme="day"] header p{color:#172c45;text-shadow:none}
 html[data-solar-theme="day"] article{background:rgba(255,255,255,.94);border-color:rgba(55,85,120,.22);box-shadow:0 8px 24px rgba(35,65,100,.12)}
@@ -179,7 +175,7 @@ html[data-solar-theme="day"] .search-filters button{background:#e2eefb;color:#20
 </head>
 <body>
 <header><h1>大学入試 PDF教材ライブラリ</h1><p>共通テスト・難関大学入試対策</p></header>
-<div class="weather-strip"><span id="weather-description" role="status" aria-live="polite">時間帯に合わせた背景を表示中</span><button id="weather-location" type="button">現在地の天気を反映</button></div>
+<div class="weather-strip"><span id="weather-description" role="status" aria-live="polite">時間帯に合わせた表示</span><button id="weather-location" type="button">現在地の天気を表示</button></div>
 
 <section class="countdown" aria-label="大学入学共通テストまでの残り時間">
   <div class="countdown-panel">
@@ -219,18 +215,6 @@ html[data-solar-theme="day"] .search-filters button{background:#e2eefb;color:#20
 "use strict";
 
 /* 天気はOpen-Meteo（APIキー不要）。初期値は東京、位置情報はボタン操作時だけ利用。 */
-const BACKGROUND_PHOTOS={
-  morning:"https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2400&q=85",
-  day:"https://commons.wikimedia.org/wiki/Special:Redirect/file/%E9%A6%96%E9%87%8C%E5%9F%8E%20(34002544292).jpg?width=2400",
-  evening:"https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=2400&q=85",
-  night:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Great_Seto_Bridge_at_night.jpg?width=2288",
-  rain:"https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=2400&q=85",
-  cloudy:"https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2400&q=85",
-  snow:"https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=2400&q=85"
-};
-/* 夜景写真: Mlaurenti / Wikimedia Commons / CC BY-SA 3.0
-   https://commons.wikimedia.org/wiki/File:Great_Seto_Bridge_at_night.jpg
-   https://creativecommons.org/licenses/by-sa/3.0/ */
 /* 東京（JST）の天文上の日の出・日の入り。Open-Meteoの日別データを利用。 */
 let tokyoSunrise=null;
 let tokyoSunset=null;
@@ -276,10 +260,7 @@ const weatherDescription=document.getElementById("weather-description");
 const weatherLocation=document.getElementById("weather-location");
 let currentWeatherCode=null;
 let weatherArea="東京";
-function timeScene(){
-  const hour=new Date().getHours();
-  return hour>=5&&hour<10?"morning":hour>=10&&hour<17?"day":hour>=17&&hour<19?"evening":"night";
-}
+
 function weatherScene(code){
   if(code===null)return null;
   if(code>=71&&code<=86)return "snow";
@@ -288,13 +269,10 @@ function weatherScene(code){
   return null;
 }
 function applyBackground(){
-  const scene=weatherScene(currentWeatherCode)||(document.documentElement.dataset.solarTheme==="day"?"day":timeScene());
-  const sunnyDay=document.documentElement.dataset.solarTheme==="day"&&(currentWeatherCode===null||currentWeatherCode===0||currentWeatherCode===1);
-  const displayScene=sunnyDay?"day":scene;
-  document.documentElement.style.setProperty("--landscape-image",'url("'+BACKGROUND_PHOTOS[displayScene]+'")');
-  const timeNames={morning:"朝",day:"昼",evening:"夕方",night:"夜"};
+  const daytime=document.documentElement.dataset.solarTheme==="day";
   const weatherNames={rain:"雨",cloudy:"曇り",snow:"雪"};
-  weatherDescription.textContent=(currentWeatherCode===null?"時刻に連動":weatherArea+"の天気に連動")+" · "+(displayScene==="day"?"首里城（晴天の昼）":displayScene==="night"?"瀬戸大橋の夜景":(weatherNames[displayScene]||timeNames[displayScene])+"の風景");
+  const weather=weatherNames[weatherScene(currentWeatherCode)]||(currentWeatherCode===null?"未取得":"晴れ・その他");
+  weatherDescription.textContent="東京の日の出・日の入りに連動 · "+(daytime?"昼間":"夜間")+"表示"+(currentWeatherCode===null?"":" · "+weatherArea+"の天気："+weather);
 }
 async function loadWeather(latitude,longitude,area){
   try{
@@ -308,7 +286,7 @@ async function loadWeather(latitude,longitude,area){
     weatherArea=area;
   }catch(error){
     currentWeatherCode=null;
-    console.warn("天気取得に失敗したため時刻ベースの背景を使用:",error);
+    console.warn("天気取得に失敗:",error);
   }
   applyBackground();
 }
