@@ -84,12 +84,12 @@ for(const subject of ["英語","国語","理科","社会","情報"]){
 pools.set("chem-all",catalog.filter(c=>c.section==="化学").flatMap(c=>pools.get(c.key)));labels.set("chem-all","化学・総合");
 const storageKey="study-library-quiz-v2",progressKey=storageKey+":progress",historyKey=storageKey+":history";
 let storageOK=true;
-function load(key,fallback){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch(e){storageOK=false;return fallback}}
-function save(key,value){try{if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,JSON.stringify(value));return true}catch(e){storageOK=false;return false}}
+function load(key,fallback){return StudyCore.read(key,fallback,()=>storageOK=false)}
+function save(key,value){return StudyCore.write(key,value,()=>storageOK=false)}
 let history=load(historyKey,{});
 if(!history||typeof history!=="object"||Array.isArray(history))history={};
 let saved=load(progressKey,null),session=null,pending=null,lastOptions={order:"random",shuffle:true};
-const chooseOrder=a=>{const copy=a.slice();for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]]}return copy};
+const chooseOrder=StudyCore.shuffle;
 const node=(tag,content,cls)=>{const e=document.createElement(tag);if(content!==undefined)e.textContent=content;if(cls)e.className=cls;return e};
 const button=(label,cls,action)=>{const b=node("button",label,cls);b.type="button";b.addEventListener("click",action);return b};
 const menuPanel=$("menu"),quizPanel=$("quiz"),resultPanel=$("results");
@@ -126,7 +126,7 @@ function openSetup(key,ids=pools.get(key),label=labels.get(key)){
  $("question-count").max=ids.length;$("question-count").value=Math.min(20,ids.length);
  $("question-order").value=lastOptions.order;$("shuffle-options").checked=lastOptions.shuffle!==false;
  $("count-error").textContent="";const preset=$("count-presets");preset.replaceChildren();
- for(const n of [5,10,20,30,50,100].filter(n=>n<ids.length).concat(ids.length)){
+ for(const n of StudyCore.presets(ids.length,[5,10,20,30,50,100])){
   preset.append(button(n===ids.length?"全問（"+n+"問）":n+"問","secondary",()=>{$("question-count").value=n;$("count-error").textContent=""}));
  }
  display(setup,"setup-title");
@@ -142,7 +142,7 @@ function beginLoaded(ids,label,options,key){
 function persist(){saved=session;save(progressKey,session)}
 $("begin-count").onclick=()=>{
  const n=Number($("question-count").value);
- if(!pending||!Number.isInteger(n)||n<1||n>pending.ids.length){$("count-error").textContent="1〜"+(pending?.ids.length||0)+"の整数を指定してください。";return}
+ if(!pending||!StudyCore.validCount(n,pending.ids.length)){$("count-error").textContent="1〜"+(pending?.ids.length||0)+"の整数を指定してください。";return}
  const options={order:$("question-order").value,shuffle:$("shuffle-options").checked};
  const ids=(options.order==="random"?chooseOrder(pending.ids):pending.ids).slice(0,n);
  begin(ids,pending.label,options,pending.key);
@@ -174,8 +174,7 @@ function mark(i){
  if(!session||session.answers[session.index]!==null)return;
  const q=currentQuestion(),ok=StudyGrade.single(i,q.answer);
  session.answers[session.index]=i;
- const prev=history[q.id]||{attempts:0,correct:0};
- history[q.id]={attempts:(Number(prev.attempts)||0)+1,correct:(Number(prev.correct)||0)+(ok?1:0),lastCorrect:ok};
+ StudyCore.record(history,q.id,ok);StudyCore.recordFor('four-choice',q.id,ok);
  save(historyKey,history);persist();paint(q,i);
 }
 function result(){

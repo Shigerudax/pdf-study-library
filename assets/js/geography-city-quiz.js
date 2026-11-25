@@ -2,9 +2,9 @@
 const REGIONS=globalThis.StudyQuizData.REGIONS;
 const $=id=>document.getElementById(id);
 const all=REGIONS.flatMap(g=>g.cities.map(c=>({...c,region:g.region})));
-const randomize=a=>{const out=a.slice();for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]]}return out};
+const randomize=StudyCore.shuffle;
 REGIONS.forEach((g,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=g.region+"（10問）";$("region").append(o)});
-function updateCounts(){const max=$("region").value==="all"?all.length:REGIONS[Number($("region").value)].cities.length;$("city-count").max=max;$("city-count").value=Math.min(20,max);$("city-presets").replaceChildren();for(const n of [5,10,20,30,50].filter(n=>n<max).concat(max)){const o=document.createElement("option");o.value=n;o.textContent=n===max?"全問（"+max+"問）":n+"問";$("city-presets").append(o)}$("city-presets").value=$("city-count").value;}
+function updateCounts(){const max=$("region").value==="all"?all.length:REGIONS[Number($("region").value)].cities.length;$("city-count").max=max;$("city-count").value=Math.min(20,max);$("city-presets").replaceChildren();for(const n of StudyCore.presets(max,[5,10,20,30,50])){const o=document.createElement("option");o.value=n;o.textContent=n===max?"全問（"+max+"問）":n+"問";$("city-presets").append(o)}$("city-presets").value=$("city-count").value;}
 $("region").addEventListener("change",updateCounts);$("city-presets").addEventListener("change",()=>{$("city-count").value=$("city-presets").value});$("city-count").addEventListener("input",()=>{const v=$("city-count").value;const presets=$("city-presets");presets.value=v;if(presets.value!==v)presets.selectedIndex=-1});updateCounts();
 let questions=[],at=0,points=0,answered=false,map=null,marker=null,tiles=null,mapReady=false,waitingForMap=false,tileErrors=0,mapTimer=null,missed=[],previousRegion="all";
 
@@ -57,7 +57,7 @@ function start(){
  previousRegion=$("region").value;
  const pool=previousRegion==="all"?all:REGIONS[Number(previousRegion)].cities.map(c=>({...c,region:REGIONS[Number(previousRegion)].region}));
  const n=Number($("city-count").value);
- if(!Number.isInteger(n)||n<1||n>pool.length){$("city-count").reportValidity();return}
+ if(!StudyCore.validCount(n,pool.length)){$("city-count").reportValidity();return}
  launchCities(($("city-order").value==="random"?randomize(pool):pool).slice(0,n));
 }
 function candidateChoices(target){
@@ -82,7 +82,7 @@ function showQuestion(){
 function choose(name,button){
   if(answered||!mapReady)return;
   answered=true;const city=questions[at];const correct=StudyGrade.single(name,city.name);
-  if(correct)points++;else missed.push({city,chosen:name});
+  StudyCore.recordFor('geography',city.region+':'+city.name,correct);if(correct)points++;else missed.push({city,chosen:name});
   $("bar").style.width=((at+1)/questions.length*100)+"%";
   for(const b of $("answers").children){
     b.disabled=true;

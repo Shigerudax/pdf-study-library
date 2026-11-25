@@ -37,3 +37,5 @@ for(const m of materials){assert(nonempty(m.title)&&fs.existsSync(m.file)&&m.fil
 const tracked=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(f=>/^(英語|数学|国語|理科|社会|情報|毎日の知識補充問題)\/.+\.pdf$/i.test(f));
 assert.deepEqual(materials.map(m=>m.file).sort(),tracked.sort(),'PDF index differs from tracked files');
 console.log('Validated '+count+' quiz questions, '+materials.length+' PDFs, grading and static local links');
+
+{const ctx=vm.createContext({localStorage:{getItem(){return null},setItem(){},removeItem(){}}});vm.runInContext(read('assets/js/study-core.js'),ctx);const c=ctx.StudyCore;assert(c.validCount(3,5));assert(!c.validCount(0,5));assert.equal(JSON.stringify(c.presets(7,[5,10])), '[5,7]');assert.equal(JSON.stringify(c.shuffle([1,2,3]).sort()),'[1,2,3]');assert(c.multiple([2,1],[1,2]).ok);assert(!c.multiple([1],[1,2]).ok);const history={};c.record(history,'a',true);c.record(history,'a',false);assert.equal(history.a.attempts,2);assert.equal(history.a.correct,1);assert.equal(history.a.lastCorrect,false);}
