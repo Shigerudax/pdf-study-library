@@ -32,6 +32,11 @@ jobs:
           fetch-depth: 0
       - name: PDF教材一覧を生成
         run: python3 scripts/build_materials.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 公開前の教材・採点・リンク検証
+        run: node tests/validate-site.mjs
       - name: 更新があればコミット
         run: |
           if [[ -n "$(git status --porcelain -- materials.json)" ]]; then

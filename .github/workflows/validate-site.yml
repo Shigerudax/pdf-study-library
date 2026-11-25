@@ -1,0 +1,27 @@
+name: Validate learning site
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate current material index
+        run: python3 scripts/build_materials.py
+      - name: Validate questions, grading, and links
+        run: node tests/validate-site.mjs
+      - name: Report index synchronization
+        run: |
+          if ! git diff --quiet -- materials.json; then
+            echo "::warning::Committed material index differs from generated index; index update workflow must synchronize it."
+          fi
