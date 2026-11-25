@@ -41,6 +41,31 @@ const catalog=[
 {subject:"情報",name:"情報Ⅰ・基礎知識と事例判断",key:"info",groups:informationGroups}
 ];
 const bank=new Map(), pools=new Map(), labels=new Map();
+const sourceKeys=["groups","advancedGroups","secondaryEnglishGroups","englishClozeGroups","englishContextGroups","englishContextHardGroups","kobunQuizGroups","physicsGroups","chemistryGroups","organicGroups","inorganicGroups","sugarAminoGroups","geographyGroups","informationGroups"];
+const sources=new Map(catalog.map((c,i)=>[c.key,globalThis.StudyQuizManifest.find(m=>m.key===sourceKeys[i])]));
+const loaded=new Map();
+let loading=false;
+function loadKind(kind){
+ if(loaded.has(kind))return loaded.get(kind);
+ const m=sources.get(kind),c=catalog.find(c=>c.key===kind);
+ const promise=new Promise((resolve,reject)=>{
+  const script=document.createElement("script");script.src=m.path;
+  script.onload=()=>{try{
+   const groups=globalThis.StudyQuizData[m.key];
+   if(groups.length!==c.groups.length||groups.some((g,i)=>g.name!==c.groups[i].name||g.questions.length!==c.groups[i].questions.length||g.questions.some(q=>!q||!Array.isArray(q.choices))))throw Error("問題データの構成が一致しません");
+   groups.forEach((g,gi)=>g.questions.forEach((q,qi)=>{const id=kind+":"+gi+":"+qi;bank.set(id,{...q,id,group:g.name,subject:c.subject,section:c.section||c.name,kind});}));resolve();
+  }catch(e){script.remove();reject(e)}};
+  script.onerror=()=>{script.remove();reject(Error("問題データを取得できません: "+kind))};document.head.append(script);
+ });
+ loaded.set(kind,promise);promise.catch(()=>loaded.delete(kind));return promise;
+}
+async function withQuestions(ids,action){
+ if(loading)return;loading=true;
+ const status=$("startup-status");status.hidden=false;status.textContent="問題データを読み込んでいます…";
+ try{await Promise.all([...new Set(ids.map(id=>id.split(":")[0]))].map(loadKind));status.hidden=true;action();}
+ catch(e){status.hidden=false;status.textContent="問題の読み込みに失敗しました。再度操作してください。（"+e.message+"）";console.error(e);}
+ finally{loading=false;}
+}
 for(const c of catalog){
  const all=[];
  c.groups.forEach((g,gi)=>{
@@ -86,7 +111,7 @@ function updateDashboard(){
  const actions=$("study-actions");actions.replaceChildren();
  if(validSession(saved)){
   const answered=saved.answers.filter(a=>a!==null).length;
-  actions.append(button("中断した演習を再開（"+answered+"/"+saved.ids.length+"問）","primary",()=>{session=saved;lastOptions=session.options||lastOptions;display(quizPanel,"word");show();}));
+  actions.append(button("中断した演習を再開（"+answered+"/"+saved.ids.length+"問）","primary",()=>{const resume=saved;withQuestions(resume.ids,()=>{if(saved!==resume)return;session=resume;lastOptions=session.options||lastOptions;display(quizPanel,"word");show();});}));
   actions.append(button("中断データを削除","secondary",()=>{if(confirm("保存された中断データを削除しますか？ 学習履歴は残ります。")){saved=null;session=null;save(progressKey,null);updateDashboard()}}));
  }
  const review=button("誤答を復習（"+missed.length+"問）","secondary",()=>openSetup("review",missedIds(),"誤答の復習"));review.disabled=!missed.length;actions.append(review);
@@ -107,6 +132,9 @@ function openSetup(key,ids=pools.get(key),label=labels.get(key)){
  display(setup,"setup-title");
 }
 function begin(ids,label,options,key){
+ withQuestions(ids,()=>beginLoaded(ids,label,options,key));
+}
+function beginLoaded(ids,label,options,key){
  if(validSession(saved)&&!confirm("中断中の演習があります。新しい演習を開始すると中断データが上書きされます。よろしいですか？"))return;
  session={ids:ids.slice(),label,key,options,orders:ids.map(()=>options.shuffle?chooseOrder([0,1,2,3]):[0,1,2,3]),answers:ids.map(()=>null),index:0};
  lastOptions=options;persist();display(quizPanel,"word");show();

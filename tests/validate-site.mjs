@@ -4,7 +4,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
 const read=p=>fs.readFileSync(p,'utf8');
-const loadSplit=()=>{const manifest=JSON.parse(read('data/quizzes/web-practice-manifest.json'));const context=vm.createContext({});for(const m of manifest){vm.runInContext(read(m.path),context);assert.equal(context.StudyQuizData[m.key].reduce((n,g)=>n+g.questions.length,0),m.count);assert(read('web-practice.html').includes('src="'+m.path+'"'));}return JSON.parse(JSON.stringify(context.StudyQuizData));};
+const loadSplit=()=>{const manifest=JSON.parse(read('data/quizzes/web-practice-manifest.json'));const context=vm.createContext({});for(const m of manifest){vm.runInContext(read(m.path),context);assert.equal(context.StudyQuizData[m.key].reduce((n,g)=>n+g.questions.length,0),m.count);assert(fs.existsSync(m.path));}const index=vm.createContext({});vm.runInContext(read('data/quizzes/web-practice-index.js'),index);for(const m of manifest){assert.deepEqual(JSON.parse(JSON.stringify(index.StudyQuizData[m.key].map(g=>[g.name,g.questions.length]))),JSON.parse(JSON.stringify(context.StudyQuizData[m.key].map(g=>[g.name,g.questions.length]))));assert(!read('web-practice.html').includes('src="'+m.path+'"'));}return JSON.parse(JSON.stringify(context.StudyQuizData));};
 const load=p=>p==='web-practice'?loadSplit():JSON.parse(read('data/quizzes/'+p+'.js').replace(/^globalThis\.StudyQuizData = /,'').trim().replace(/;$/,''));
 vm.runInThisContext(read('assets/js/grading.js'));
 const G=globalThis.StudyGrade;
