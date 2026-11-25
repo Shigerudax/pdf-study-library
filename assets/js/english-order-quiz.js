@@ -29,7 +29,7 @@ function setLevel(l){level=l;for(const b of $("levels").children)b.setAttribute(
 function begin(ids,label){if(!ids.length)return;if(valid(saved)&&!confirm("中断中の演習を上書きしますか？"))return;session={ids:ids.slice(),label,index:0,orders:ids.map(id=>{const n=bank.get(id).tokens.length;const a=Array.from({length:n},(_,i)=>i);const b=shuffle(a);if(b.every((x,i)=>x===i))[b[0],b[1]]=[b[1],b[0]];return b}),answers:ids.map(()=>null),draft:[]};persist();page("quiz","jp");show()}
 function question(){return bank.get(session.ids[session.index])}
 function normalizedSentence(sentence){return sentence.toLowerCase().replace(/[.!?]+(?=\s|$)/g,"").replace(/\s+/g," ").trim()}
-function isCorrect(a,q){return !!(a&&a.length===q.tokens.length&&[q.tokens.join(" "),...(q.alternatives||[])].some(answer=>normalizedSentence(answer)===normalizedSentence(a.map(i=>q.tokens[i]).join(" "))))}
+function isCorrect(a,q){return StudyGrade.order(a,q)}
 // Remove capitalization and sentence-ending punctuation as ordering clues.
 // Keep proper nouns and the pronoun I; retain the original sentence for grading and feedback.
 function displayToken(token){

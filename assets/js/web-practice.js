@@ -136,7 +136,7 @@ function show(){
  if(selected!==null)paint(q,selected);
 }
 function paint(q,i){
- const ok=i===q.answer;
+ const ok=StudyGrade.single(i,q.answer);
  [...$("choices").children].forEach((b,j)=>{b.disabled=true;if(j===q.answer)b.classList.add("correct");else if(j===i)b.classList.add("wrong")});
  renderAnswerFeedback(q,i,ok);$("feedback").classList.remove("hidden");
  $("next").textContent=session.index===session.ids.length-1?"採点結果を見る":"次の問題へ";$("next").classList.remove("hidden");
@@ -144,7 +144,7 @@ function paint(q,i){
 }
 function mark(i){
  if(!session||session.answers[session.index]!==null)return;
- const q=currentQuestion(),ok=i===q.answer;
+ const q=currentQuestion(),ok=StudyGrade.single(i,q.answer);
  session.answers[session.index]=i;
  const prev=history[q.id]||{attempts:0,correct:0};
  history[q.id]={attempts:(Number(prev.attempts)||0)+1,correct:(Number(prev.correct)||0)+(ok?1:0),lastCorrect:ok};
@@ -153,7 +153,7 @@ function mark(i){
 function result(){
  const done=session;let score=0;const stats=new Map(),missed=[];
  done.ids.forEach((id,i)=>{
-  const q=bank.get(id),chosen=done.orders[i][done.answers[i]],ok=chosen===q.answer;
+  const q=bank.get(id),chosen=done.orders[i][done.answers[i]],ok=StudyGrade.single(chosen,q.answer);
   const key=q.section+"｜"+q.group,st=stats.get(key)||{n:0,correct:0};st.n++;if(ok){score++;st.correct++}else missed.push({id,q,chosen});stats.set(key,st);
  });
  saved=null;save(progressKey,null);

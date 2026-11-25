@@ -81,7 +81,7 @@ function showQuestion(){
 }
 function choose(name,button){
   if(answered||!mapReady)return;
-  answered=true;const city=questions[at];const correct=name===city.name;
+  answered=true;const city=questions[at];const correct=StudyGrade.single(name,city.name);
   if(correct)points++;else missed.push({city,chosen:name});
   $("bar").style.width=((at+1)/questions.length*100)+"%";
   for(const b of $("answers").children){
