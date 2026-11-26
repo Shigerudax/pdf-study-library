@@ -47,6 +47,6 @@ $("pause").onclick=()=>{if(confirm("演習を中断しますか？ 解答途中�
 $("home").onclick=()=>{update();page("setup")};
 $("review-all").onclick=()=>begin(shuffle(missed()),"誤答復習");
 $("start").onclick=()=>{const n=Number($("count").value),p=pool();if(!StudyCore.validCount(n,p.length)){$("error").textContent="1〜"+p.length+"問の整数を指定してください。";return}begin(($("order").value==="random"?shuffle(p):p).slice(0,n).map(q=>q.id),level)};
-for(const [l,desc] of [["all",all.length+"問"],["added","追加50問"],["基礎","文型・時制"],["基本","不定詞・受動態"],["標準","関係詞・仮定法"],["応用","語法・倒置"],["発展","難関大構文"],["応用＋","複合語法・論説文"],["発展＋","倒置・省略・複雑な節"]]){const b=button("",()=>setLevel(l));b.dataset.level=l;b.append(make("strong",l==="all"?"全レベル":l==="added"?"新規問題":l),make("small",l==="all"||l==="added"?desc:desc+"・"+groups.find(g=>g.level===l).items.length+"問"));$("levels").append(b)}
+for(const [l,desc] of [["all",all.length+"問"],["added","追加50問"],["基礎","文型・時制"],["基本","不定詞・受動態"],["標準","関係詞・仮定法"],["応用","語法・倒置"],["発展","難関大構文"],["応用＋","複合語法・論説文"],["発展＋","倒置・省略・複雑な節"],["GMARCH","中堅私立・語法と構文"],["早慶上理","難関私立・複雑な構文"]]){const b=button("",()=>setLevel(l));b.dataset.level=l;b.append(make("strong",l==="all"?"全レベル":l==="added"?"新規問題":l),make("small",l==="all"||l==="added"?desc:desc+"・"+groups.find(g=>g.level===l).items.length+"問"));$("levels").append(b)}
 setLevel("all");update();$("start").disabled=false;
 }catch(e){const p=document.getElementById("stats");if(p)p.textContent="演習の初期化に失敗しました。再読み込みしてください。";console.error(e)}})();
