@@ -25,6 +25,7 @@ function renderAnswerFeedback(q,i,ok){const area=$("feedback");area.replaceChild
 const englishContextGroups=globalThis.StudyQuizData.englishContextGroups;
 const englishContextHardGroups=globalThis.StudyQuizData.englishContextHardGroups;
 const catalog=[
+{subject:"英語",name:"京都大学 過去問英単語・熟語 2001–2026",key:"en-kyoto-past",groups:globalThis.StudyQuizData.kyotoPastGroups},
 {subject:"英語",name:"共通テスト英単語・基本",key:"en-basic",groups},
 {subject:"英語",name:"共通テスト英単語・発展",key:"en-advanced",groups:advancedGroups},
 {subject:"英語",name:"二次試験向け英単語",key:"en-secondary",groups:secondaryEnglishGroups},
@@ -41,7 +42,7 @@ const catalog=[
 {subject:"情報",name:"情報Ⅰ・基礎知識と事例判断",key:"info",groups:informationGroups}
 ];
 const bank=new Map(), pools=new Map(), labels=new Map();
-const sourceKeys=["groups","advancedGroups","secondaryEnglishGroups","englishClozeGroups","englishContextGroups","englishContextHardGroups","kobunQuizGroups","physicsGroups","chemistryGroups","organicGroups","inorganicGroups","sugarAminoGroups","geographyGroups","informationGroups"];
+const sourceKeys=["kyotoPastGroups","groups","advancedGroups","secondaryEnglishGroups","englishClozeGroups","englishContextGroups","englishContextHardGroups","kobunQuizGroups","physicsGroups","chemistryGroups","organicGroups","inorganicGroups","sugarAminoGroups","geographyGroups","informationGroups"];
 const sources=new Map(catalog.map((c,i)=>[c.key,globalThis.StudyQuizManifest.find(m=>m.key===sourceKeys[i])]));
 const loaded=new Map();
 let loading=false;
@@ -158,7 +159,7 @@ function show(){
  $("bar").style.width=(100*(idx+(selected!==null?1:0))/session.ids.length)+"%";
  $("word").textContent=q.word;$("word").classList.toggle("word-long",q.word.length>28||q.kind==="en-cloze"||q.kind.startsWith("en-context"));
  if(q.kind.startsWith("en-context")){const match=q.word.match(/^(.*?)\[([^\]]+)\](.*)$/s);if(match){const target=node("strong",match[2],"context-target");$("word").replaceChildren(document.createTextNode(match[1]),target,document.createTextNode(match[3]));}}
- $("instruction").textContent=q.kind.startsWith("en-context")?"強調された語句の、この文脈で最も適切な意味を選んでください。":["en-basic","en-advanced","en-secondary","kobun"].includes(q.kind)?"最も適切な日本語の意味を選んでください。":q.kind==="en-cloze"?"空所に入る最も適切な語句を選んでください。":"最も適切なものを1つ選んでください。";
+ $("instruction").textContent=q.kind.startsWith("en-context")?"強調された語句の、この文脈で最も適切な意味を選んでください。":["en-basic","en-advanced","en-secondary","en-kyoto-past","kobun"].includes(q.kind)?"最も適切な日本語の意味を選んでください。":q.kind==="en-cloze"?"空所に入る最も適切な語句を選んでください。":"最も適切なものを1つ選んでください。";
  $("feedback").classList.add("hidden");$("next").classList.add("hidden");$("choices").replaceChildren();
  q.choices.forEach((c,i)=>$("choices").append(button(String.fromCharCode(65+i)+". "+c,"choice",()=>mark(i))));
  if(selected!==null)paint(q,selected);
@@ -211,7 +212,7 @@ for(const b of document.querySelectorAll("[data-pool]")){
  if(!pools.has(key))throw Error("Unknown question pool: "+key);
  b.addEventListener("click",()=>openSetup(key));b.disabled=false;
 }
-$("intro").textContent="4択演習 "+bank.size+"問・英文整序150問・都市名当て60問を収録。科目・分野を選び、出題数を指定して学習できます。";
+$("intro").textContent="4択演習 "+bank.size+"問・英文整序210問・都市名当て60問を収録。科目・分野を選び、出題数を指定して学習できます。";
 updateDashboard();
 $("startup-status").textContent="";
 $("startup-status").hidden=true;
